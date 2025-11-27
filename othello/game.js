@@ -934,9 +934,14 @@ class OthelloGame {
             if (window.firebaseInitReady) {
                 await window.firebaseInitReady;
             }
+            
+            // db が存在するか確認
+            if (!window.db) {
+                throw new Error('Firestore database not initialized');
+            }
         } catch (error) {
             console.error('Firebase 初期化エラー:', error);
-            alert('Firebase の初期化に失敗しました。ページをリロードしてください。');
+            alert('Firebase の初期化に失敗しました。\n\nページをリロードしてください。\n\nエラー: ' + error.message);
             return;
         }
         
@@ -952,6 +957,9 @@ class OthelloGame {
         this.playerId = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         
         try {
+            console.log('Firestore query starting...');
+            console.log('window.db:', window.db);
+            
             // 待機中のルームを探す
             const waitingRooms = await window.db.collection('othelloRooms')
                 .where('status', '==', 'waiting')
