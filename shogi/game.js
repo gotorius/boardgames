@@ -427,13 +427,7 @@ function getValidMoves(row, col, board = gameState.board, player = gameState.cur
         });
     }
     
-    // 王手回避のフィルタリング
-    return moves.filter(move => {
-        const testBoard = copyBoard(board);
-        testBoard[move.row][move.col] = testBoard[row][col];
-        testBoard[row][col] = null;
-        return !isInCheck(testBoard, player);
-    });
+    return moves;
 }
 
 // 直線移動の追加
@@ -484,17 +478,6 @@ function getValidDrops(pieceType, owner, board = gameState.board) {
             } else {
                 if ((pieceType === 'P' || pieceType === 'L') && row === 8) continue;
                 if (pieceType === 'N' && row >= 7) continue;
-            }
-            
-            // 王手放置チェック
-            const testBoard = copyBoard(board);
-            testBoard[row][col] = { type: pieceType, owner: owner };
-            if (isInCheck(testBoard, owner)) continue;
-            
-            // 打ち歩詰めチェック
-            if (pieceType === 'P') {
-                const opponent = owner === 'sente' ? 'gote' : 'sente';
-                if (isCheckmate(testBoard, opponent)) continue;
             }
             
             drops.push({ row, col });
@@ -756,6 +739,26 @@ function movePiece(fromRow, fromCol, toRow, toCol, promoteTo = null) {
     
     // 駒を取る
     if (captured) {
+        // 王を取った場合はゲーム終了
+        if (captured.type === 'K') {
+            gameState.board[toRow][toCol] = {
+                type: promoteTo || piece.type,
+                owner: piece.owner
+            };
+            gameState.board[fromRow][fromCol] = null;
+            gameState.lastMove = { fromRow, fromCol, toRow, toCol };
+            gameState.isGameOver = true;
+            const winner = piece.owner;
+            clearSelection();
+            renderBoard();
+            updateDisplay();
+            if (gameState.isOnlineGame) {
+                finishOnlineTurn().then(() => showResult(winner));
+            } else {
+                showResult(winner);
+            }
+            return;
+        }
         const capturedType = UNPROMOTED[captured.type] || captured.type;
         gameState.capturedPieces[piece.owner].push(capturedType);
     }
