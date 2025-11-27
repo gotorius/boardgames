@@ -957,7 +957,19 @@ class OthelloGame {
             }
         } catch (error) {
             console.error('マッチングエラー:', error);
-            alert('マッチングに失敗しました');
+            console.error('エラーコード:', error.code);
+            console.error('エラーメッセージ:', error.message);
+            
+            let errorMsg = 'マッチングに失敗しました。\n\n';
+            if (error.code === 'permission-denied') {
+                errorMsg += 'Firebaseのセキュリティルールを確認してください。\n';
+                errorMsg += 'Firestore Database → ルール で以下を設定:\n';
+                errorMsg += 'allow create, read, update, delete: if true;';
+            } else {
+                errorMsg += 'エラー: ' + error.message;
+            }
+            
+            alert(errorMsg);
             this.cancelMatching();
         }
     }
