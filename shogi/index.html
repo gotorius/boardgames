@@ -146,7 +146,7 @@
                     <div class="mode-section">
                         <h3>オンライン対戦</h3>
                         <div class="pvp-options">
-                            <button class="mode-btn shogi-btn wide" onclick="showOnlineMatchModal()">
+                            <button class="mode-btn shogi-btn wide" onclick="showOnlineLobby()">
                                 <span class="mode-icon">🌐</span>
                                 <span class="mode-name">オンライン対戦</span>
                                 <span class="mode-desc">インターネット経由で対戦</span>
@@ -160,41 +160,31 @@
             </div>
         </div>
 
-        <!-- オンラインマッチモーダル -->
-        <div id="online-match-modal" class="modal hidden">
+        <!-- オンライン対戦ロビーモーダル -->
+        <div id="online-lobby-modal" class="modal hidden">
             <div class="modal-content">
                 <h2>🌐 オンライン対戦</h2>
-                <div class="online-match-options">
-                    <button class="mode-btn shogi-btn wide" onclick="startMatchmaking()">
-                        <span class="mode-icon">🔄</span>
-                        <span class="mode-name">対戦相手を探す</span>
-                        <span class="mode-desc">マッチメイキングで対戦相手を探します</span>
-                    </button>
-                    <div style="margin-top: 20px; padding: 15px; background: rgba(255,215,0,0.1); border-radius: 8px;">
-                        <p style="font-size: 0.9rem; margin-bottom: 10px;">招待コード（友人と対戦）:</p>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" id="invite-code-input" placeholder="招待コードを入力" style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #8b5a2b;">
-                            <button class="btn btn-secondary" onclick="joinWithCode()">参加</button>
-                        </div>
-                        <button class="btn btn-primary" onclick="generateInviteCode()" style="margin-top: 10px; width: 100%;">招待コードを生成</button>
+                <div id="lobby-screen" class="online-screen">
+                    <p class="online-description">
+                        世界中のプレイヤーとリアルタイム対戦！<br>
+                        先手・後手はランダムに決まります
+                    </p>
+                    <div class="name-input-section">
+                        <label for="online-name">プレイヤー名:</label>
+                        <input type="text" id="online-name" placeholder="名前を入力" maxlength="20">
                     </div>
+                    <button id="start-matching-btn" class="btn btn-primary btn-large" onclick="startMatching()">対戦相手を探す</button>
+                </div>
+                <div id="matching-screen" class="online-screen hidden">
+                    <div class="matching-animation">
+                        <div class="thinking-spinner"></div>
+                        <p>対戦相手を探しています...</p>
+                        <p id="waiting-count" class="waiting-info"></p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="cancelMatching()">キャンセル</button>
                 </div>
                 <div class="modal-buttons">
-                    <button class="btn btn-secondary" onclick="hideModal('online-match-modal'); showModal('mode-modal')">戻る</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- マッチメイキング中モーダル -->
-        <div id="matchmaking-modal" class="modal hidden">
-            <div class="modal-content">
-                <h2>対戦相手を探中...</h2>
-                <div style="text-align: center; margin: 30px 0;">
-                    <div class="thinking-spinner" style="margin: 0 auto 20px;"></div>
-                    <p id="matchmaking-status">マッチメイキング中...</p>
-                </div>
-                <div class="modal-buttons">
-                    <button class="btn btn-secondary" onclick="cancelMatchmaking()">キャンセル</button>
+                    <button class="btn btn-secondary" onclick="closeLobby()">閉じる</button>
                 </div>
             </div>
         </div>
