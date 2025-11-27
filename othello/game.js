@@ -48,6 +48,20 @@ class OthelloGame {
         this.showModeModal();
     }
     
+    // 2次元配列を1次元配列に変換（Firestore保存用）
+    boardToFlat(board) {
+        return board.flat();
+    }
+    
+    // 1次元配列を2次元配列に変換（Firestore読み込み用）
+    flatToBoard(flat) {
+        const board = [];
+        for (let i = 0; i < 8; i++) {
+            board.push(flat.slice(i * 8, (i + 1) * 8));
+        }
+        return board;
+    }
+    
     initEventListeners() {
         // 新しいゲームボタン
         document.getElementById('new-game-btn').addEventListener('click', () => {
@@ -1045,7 +1059,7 @@ class OthelloGame {
                 name: this.playerName,
                 color: player2Color
             },
-            board: initialBoard,
+            board: this.boardToFlat(initialBoard),
             currentPlayer: this.BLACK,
             startedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
@@ -1106,7 +1120,8 @@ class OthelloGame {
         
         // ゲームモード設定
         this.gameMode = 'online';
-        this.board = roomData.board.map(r => [...r]);
+        // 1次元配列から2次元配列に変換
+        this.board = this.flatToBoard(roomData.board);
         this.currentPlayer = roomData.currentPlayer;
         this.lastMove = roomData.lastMove;
         this.history = [];
@@ -1171,7 +1186,7 @@ class OthelloGame {
         
         try {
             await window.db.collection('othelloRooms').doc(this.onlineRoomId).update({
-                board: this.board,
+                board: this.boardToFlat(this.board),
                 currentPlayer: this.currentPlayer,
                 lastMove: { row, col },
                 lastMoveBy: this.playerId
@@ -1188,9 +1203,9 @@ class OthelloGame {
         // ゲーム終了済みの場合は無視
         if (this.isGameOver) return;
         
-        // 盤面を更新
+        // 盤面を更新（1次元配列から2次元配列に変換）
         if (roomData.board) {
-            this.board = roomData.board.map(r => [...r]);
+            this.board = this.flatToBoard(roomData.board);
         }
         this.currentPlayer = roomData.currentPlayer;
         this.lastMove = roomData.lastMove;
