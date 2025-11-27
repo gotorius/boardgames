@@ -942,7 +942,7 @@ class OthelloGame {
         
         try {
             // 待機中のルームを探す
-            const waitingRooms = await db.collection('othelloRooms')
+            const waitingRooms = await window.db.collection('othelloRooms')
                 .where('status', '==', 'waiting')
                 .limit(1)
                 .get();
@@ -975,7 +975,7 @@ class OthelloGame {
     }
     
     async createRoom() {
-        const roomRef = await db.collection('othelloRooms').add({
+        const roomRef = await window.db.collection('othelloRooms').add({
             status: 'waiting',
             player1: {
                 id: this.playerId,
@@ -992,7 +992,7 @@ class OthelloGame {
         this.onlineRoomId = roomRef.id;
         
         // ルームの変更を監視
-        this.matchingListener = db.collection('othelloRooms').doc(this.onlineRoomId)
+        this.matchingListener = window.db.collection('othelloRooms').doc(this.onlineRoomId)
             .onSnapshot((doc) => {
                 const data = doc.data();
                 if (data && data.status === 'playing') {
@@ -1018,7 +1018,7 @@ class OthelloGame {
         initialBoard[4][3] = this.BLACK;
         initialBoard[4][4] = this.WHITE;
         
-        await db.collection('othelloRooms').doc(roomId).update({
+        await window.db.collection('othelloRooms').doc(roomId).update({
             status: 'playing',
             'player1.color': player1Color,
             player2: {
@@ -1032,13 +1032,13 @@ class OthelloGame {
         });
         
         // 更新後のデータを取得
-        const updatedDoc = await db.collection('othelloRooms').doc(roomId).get();
+        const updatedDoc = await window.db.collection('othelloRooms').doc(roomId).get();
         this.startOnlineGame(updatedDoc.data());
     }
     
     async updateWaitingCount() {
         try {
-            const snapshot = await db.collection('othelloRooms')
+            const snapshot = await window.db.collection('othelloRooms')
                 .where('status', '==', 'waiting')
                 .get();
             document.getElementById('waiting-count').textContent = 
@@ -1105,7 +1105,7 @@ class OthelloGame {
         this.updateOnlineUI();
         
         // ルームの変更を監視
-        this.roomListener = db.collection('othelloRooms').doc(this.onlineRoomId)
+        this.roomListener = window.db.collection('othelloRooms').doc(this.onlineRoomId)
             .onSnapshot((doc) => {
                 if (doc.exists) {
                     this.handleRoomUpdate(doc.data());
@@ -1151,7 +1151,7 @@ class OthelloGame {
         if (!this.onlineRoomId) return;
         
         try {
-            await db.collection('othelloRooms').doc(this.onlineRoomId).update({
+            await window.db.collection('othelloRooms').doc(this.onlineRoomId).update({
                 board: this.board,
                 currentPlayer: this.currentPlayer,
                 lastMove: { row, col },
@@ -1232,7 +1232,7 @@ class OthelloGame {
         if (!this.onlineRoomId) return;
         
         try {
-            await db.collection('othelloRooms').doc(this.onlineRoomId).update({
+            await window.db.collection('othelloRooms').doc(this.onlineRoomId).update({
                 currentPlayer: this.currentPlayer,
                 lastMoveBy: this.playerId,
                 lastMove: null
@@ -1304,7 +1304,7 @@ class OthelloGame {
         // ルームを削除
         if (this.onlineRoomId) {
             try {
-                await db.collection('othelloRooms').doc(this.onlineRoomId).delete();
+                await window.db.collection('othelloRooms').doc(this.onlineRoomId).delete();
             } catch (error) {
                 console.error('ルーム削除エラー:', error);
             }
