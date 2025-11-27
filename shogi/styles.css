@@ -1,7 +1,4 @@
-/* 将棋 - スタイルシート */
-
-/* フォント */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap');
+/* 将棋 - スタイルシート（オセロ・フリーセルと統一） */
 
 /* リセットと基本スタイル */
 * {
@@ -11,10 +8,10 @@
 }
 
 body {
-    font-family: 'Noto Serif JP', serif;
-    background: linear-gradient(135deg, #2d1810 0%, #1a0f0a 50%, #0d0705 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     min-height: 100vh;
-    color: #f5e6d3;
+    color: #fff;
     user-select: none;
 }
 
@@ -37,16 +34,14 @@ body {
     gap: 15px;
     margin-bottom: 20px;
     padding: 15px 20px;
-    background: linear-gradient(135deg, rgba(139, 90, 43, 0.4) 0%, rgba(101, 67, 33, 0.4) 100%);
-    border-radius: 8px;
-    border: 2px solid #8b5a2b;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
 }
 
 .game-header h1 {
     font-size: 1.8rem;
-    color: #ffd700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .game-controls {
@@ -57,29 +52,26 @@ body {
 
 /* ホームリンク */
 .home-link {
-    color: #f5e6d3;
+    color: #fff;
     text-decoration: none;
     font-size: 0.9rem;
     padding: 8px 15px;
-    background: rgba(139, 90, 43, 0.3);
-    border: 1px solid #8b5a2b;
-    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
     transition: all 0.2s ease;
 }
 
 .home-link:hover {
-    background: rgba(139, 90, 43, 0.5);
-    color: #ffd700;
+    background: rgba(255, 255, 255, 0.2);
 }
 
 /* ボタン */
 .btn {
     padding: 10px 20px;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 1rem;
     font-weight: 600;
-    font-family: 'Noto Serif JP', serif;
     cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
@@ -95,23 +87,23 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #c9a227 0%, #a68523 100%);
-    color: #1a0f0a;
-    border: 2px solid #ffd700;
-}
-
-.btn-primary:hover {
-    background: linear-gradient(135deg, #dab32e 0%, #b8962a 100%);
+    background: linear-gradient(135deg, #4a90d9 0%, #357abd 100%);
+    color: white;
 }
 
 .btn-secondary {
-    background: linear-gradient(135deg, #5c3d2e 0%, #3d2920 100%);
-    color: #f5e6d3;
-    border: 2px solid #8b5a2b;
+    background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
+    color: white;
 }
 
-.btn-secondary:hover {
-    background: linear-gradient(135deg, #6d4a3a 0%, #4e3a2e 100%);
+.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+    color: white;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
 }
 
 .btn:disabled {
@@ -127,10 +119,10 @@ body {
     align-items: center;
     gap: 20px;
     padding: 15px 20px;
-    background: linear-gradient(135deg, rgba(139, 90, 43, 0.3) 0%, rgba(101, 67, 33, 0.3) 100%);
-    border-radius: 8px;
-    border: 1px solid #8b5a2b;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
     margin-bottom: 20px;
+    backdrop-filter: blur(10px);
 }
 
 .player-info {
@@ -139,19 +131,17 @@ body {
     gap: 12px;
     padding: 10px 15px;
     border-radius: 8px;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
 }
 
 .player-info.active {
     background: rgba(255, 215, 0, 0.15);
     box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-    border: 1px solid #ffd700;
 }
 
 .player-icon {
     font-size: 2rem;
-    color: #ffd700;
 }
 
 .player-details {
@@ -197,7 +187,6 @@ body {
 .current-turn {
     font-size: 1.3rem;
     font-weight: bold;
-    color: #ffd700;
     margin-bottom: 5px;
 }
 
@@ -226,10 +215,10 @@ body {
 .captured-pieces {
     width: 80px;
     padding: 10px;
-    background: linear-gradient(135deg, rgba(139, 90, 43, 0.4) 0%, rgba(101, 67, 33, 0.4) 100%);
-    border-radius: 8px;
-    border: 2px solid #8b5a2b;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
     min-height: 300px;
+    backdrop-filter: blur(10px);
 }
 
 .captured-label {
@@ -237,8 +226,7 @@ body {
     text-align: center;
     margin-bottom: 10px;
     padding-bottom: 8px;
-    border-bottom: 1px solid #8b5a2b;
-    color: #ffd700;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .captured-list {
@@ -253,7 +241,7 @@ body {
     justify-content: center;
     gap: 5px;
     padding: 5px;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -285,7 +273,7 @@ body {
 .board-frame {
     padding: 10px;
     background: linear-gradient(145deg, #deb887 0%, #c4a35a 50%, #b8956e 100%);
-    border-radius: 4px;
+    border-radius: 8px;
     box-shadow: 
         0 10px 40px rgba(0, 0, 0, 0.5),
         inset 0 2px 4px rgba(255, 255, 255, 0.2),
@@ -441,7 +429,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.7);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -454,16 +442,14 @@ body {
 }
 
 .modal-content {
-    background: linear-gradient(145deg, #3d2920 0%, #2d1810 100%);
-    padding: 25px 30px;
-    border-radius: 12px;
-    border: 3px solid #8b5a2b;
+    background: linear-gradient(145deg, #2a2a4a 0%, #1a1a2e 100%);
+    padding: 40px 50px;
+    border-radius: 20px;
     text-align: center;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     animation: modal-appear 0.3s ease;
-    max-width: 700px;
-    width: 800px;
-    max-height: 85vh;
+    max-width: 90vw;
+    max-height: 90vh;
     overflow-y: auto;
 }
 
@@ -481,7 +467,6 @@ body {
 .modal-content h2 {
     font-size: 2rem;
     margin-bottom: 25px;
-    color: #ffd700;
 }
 
 .modal-buttons {
@@ -496,76 +481,77 @@ body {
 .mode-options {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 25px;
 }
 
 .mode-section {
     text-align: left;
-    padding: 15px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
 }
 
 .mode-section h3 {
-    font-size: 0.95rem;
-    margin-bottom: 10px;
-    color: #c9a227;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    opacity: 0.8;
     text-align: center;
 }
 
 .difficulty-options,
 .tsume-options {
     display: flex;
-    gap: 10px;
+    gap: 15px;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 .pvp-options {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
 }
 
-.mode-btn.shogi-btn {
+.mode-btn {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: 12px 16px;
-    background: linear-gradient(135deg, rgba(139, 90, 43, 0.4) 0%, rgba(101, 67, 33, 0.4) 100%);
-    border: 2px solid #8b5a2b;
-    border-radius: 8px;
-    color: #f5e6d3;
+    gap: 8px;
+    padding: 20px 25px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    color: #fff;
     cursor: pointer;
     transition: all 0.3s ease;
-    min-width: 90px;
-    font-family: 'Noto Serif JP', serif;
-    font-size: 0.85rem;
+    min-width: 120px;
 }
 
-.mode-btn.shogi-btn:hover {
-    background: linear-gradient(135deg, rgba(139, 90, 43, 0.6) 0%, rgba(101, 67, 33, 0.6) 100%);
+.mode-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
     border-color: #ffd700;
-    transform: translateY(-3px);
+    transform: translateY(-5px);
 }
 
-.mode-btn.shogi-btn.wide {
-    min-width: auto;
-    grid-column: 1 / -1;
+.mode-btn.shogi-btn {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.mode-btn.wide {
+    min-width: 250px;
 }
 
 .mode-icon {
-    font-size: 1.8rem;
+    font-size: 2rem;
 }
 
 .mode-name {
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: bold;
-    color: #ffd700;
 }
 
 .mode-desc {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     opacity: 0.7;
 }
 
@@ -621,7 +607,7 @@ body {
 .result-moves {
     margin-top: 15px;
     font-size: 1.1rem;
-    color: #c9a227;
+    opacity: 0.8;
 }
 
 /* 思考中インジケーター */
@@ -638,7 +624,6 @@ body {
     padding: 30px 40px;
     background: rgba(0, 0, 0, 0.9);
     border-radius: 12px;
-    border: 2px solid #8b5a2b;
 }
 
 .thinking-indicator.hidden {
@@ -648,8 +633,8 @@ body {
 .thinking-spinner {
     width: 40px;
     height: 40px;
-    border: 4px solid rgba(255, 215, 0, 0.2);
-    border-top-color: #ffd700;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #4a90d9;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
@@ -660,7 +645,6 @@ body {
 
 .thinking-text {
     font-size: 1rem;
-    color: #ffd700;
 }
 
 /* ヒント表示 */
@@ -672,6 +656,71 @@ body {
 @keyframes hintPulse {
     0%, 100% { background: rgba(0, 200, 255, 0.3); }
     50% { background: rgba(0, 200, 255, 0.5); }
+}
+
+/* オンラインロビー */
+.online-screen {
+    text-align: center;
+}
+
+.online-screen.hidden {
+    display: none;
+}
+
+.online-description {
+    margin-bottom: 20px;
+    line-height: 1.6;
+    opacity: 0.8;
+}
+
+.name-input-section {
+    margin-bottom: 20px;
+}
+
+.name-input-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.name-input-section input {
+    width: 100%;
+    max-width: 300px;
+    padding: 12px 15px;
+    font-size: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    text-align: center;
+}
+
+.name-input-section input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.name-input-section input:focus {
+    outline: none;
+    border-color: #4a90d9;
+    box-shadow: 0 0 10px rgba(74, 144, 217, 0.3);
+}
+
+.btn-large {
+    padding: 15px 40px;
+    font-size: 1.1rem;
+}
+
+.matching-animation {
+    padding: 30px 0;
+}
+
+.matching-animation p {
+    margin: 15px 0;
+}
+
+.waiting-info {
+    font-size: 0.9rem;
+    opacity: 0.7;
 }
 
 /* レスポンシブ対応 */
@@ -750,97 +799,11 @@ body {
     }
     
     .modal-content {
-        padding: 20px 15px;
+        padding: 25px 20px;
     }
     
-    .mode-options {
-        grid-template-columns: 1fr;
-    }
-    
-    .mode-btn.shogi-btn {
-        width: 100%;
+    .mode-btn {
+        min-width: 100px;
+        padding: 15px 20px;
     }
 }
-
-/* 背景エフェクト */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-        radial-gradient(circle at 20% 80%, rgba(139, 90, 43, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(201, 162, 39, 0.1) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: -1;
-}
-
-/* オンラインロビー */
-.online-screen {
-    text-align: center;
-}
-
-.online-screen.hidden {
-    display: none;
-}
-
-.online-description {
-    margin-bottom: 20px;
-    color: #d4c4a8;
-    line-height: 1.6;
-}
-
-.name-input-section {
-    margin-bottom: 20px;
-}
-
-.name-input-section label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: #c9a227;
-}
-
-.name-input-section input {
-    width: 100%;
-    max-width: 300px;
-    padding: 12px 15px;
-    font-size: 1rem;
-    border: 2px solid #8b5a2b;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    color: #f5f0e1;
-    text-align: center;
-}
-
-.name-input-section input::placeholder {
-    color: #9b8b7b;
-}
-
-.name-input-section input:focus {
-    outline: none;
-    border-color: #c9a227;
-    box-shadow: 0 0 10px rgba(201, 162, 39, 0.3);
-}
-
-.btn-large {
-    padding: 15px 40px;
-    font-size: 1.1rem;
-}
-
-.matching-animation {
-    padding: 30px 0;
-}
-
-.matching-animation p {
-    margin: 15px 0;
-    color: #d4c4a8;
-}
-
-.waiting-info {
-    font-size: 0.9rem;
-    color: #9b8b7b;
-}
-

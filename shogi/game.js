@@ -1422,29 +1422,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderBoard();
     renderCapturedPieces();
     
-    // モード選択ボタンのイベントリスナー
-    const modeButtons = document.querySelectorAll('.mode-btn.shogi-btn');
-    console.log('Found mode buttons:', modeButtons.length);
-    
-    modeButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            console.log('Button clicked:', btn.dataset);
-            const mode = btn.dataset.mode;
-            if (mode === 'cpu') {
-                const difficulty = btn.dataset.difficulty;
-                console.log('Starting CPU game with difficulty:', difficulty);
-                initGame('cpu', difficulty);
-            } else if (mode === 'tsume') {
-                const level = parseInt(btn.dataset.level);
-                console.log('Starting Tsume with level:', level);
-                initGame('tsume', level);
-            } else if (mode === 'pvp') {
-                console.log('Starting PVP game');
-                initGame('pvp', null);
-            }
-        });
-    });
-    
     // ヘッダーボタンのイベントリスナー
     document.getElementById('new-game-btn').addEventListener('click', newGame);
     document.getElementById('undo-btn').addEventListener('click', undoMove);
@@ -1457,11 +1434,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // 結果モーダルのイベントリスナー
     document.getElementById('play-again-btn').addEventListener('click', () => {
         hideModal('result-modal');
-        // 同じモードで再対局
-        initGame(gameState.gameMode, gameState.difficulty || gameState.tsumeLevel);
+        // オンラインゲームの場合はロビーに戻る
+        if (gameState.isOnlineGame) {
+            leaveOnlineGame();
+            showOnlineLobby();
+        } else {
+            // 同じモードで再対局
+            initGame(gameState.gameMode, gameState.difficulty || gameState.tsumeLevel);
+        }
     });
     document.getElementById('change-mode-btn').addEventListener('click', () => {
         hideModal('result-modal');
+        if (gameState.isOnlineGame) {
+            leaveOnlineGame();
+        }
         showModal('mode-modal');
     });
     
@@ -1553,13 +1539,28 @@ async function startMatching() {
         // 待機中のルームを探す
         const waitingRooms = await window.db.collection('shogiRooms')
             .where('status', '==', 'waiting')
-            .limit(1)
             .get();
         
-        if (!waitingRooms.empty) {
+        // 有効なルームを探す（5分以内に作成されたもの）
+        let validRoom = null;
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+        
+        for (const doc of waitingRooms.docs) {
+            const data = doc.data();
+            // player1が存在し、自分ではないことを確認
+            if (data.player1 && data.player1.id !== gameState.playerId) {
+                // 作成時間をチェック（古すぎるルームはスキップ）
+                const createdAt = data.createdAt?.toDate?.();
+                if (!createdAt || createdAt > fiveMinutesAgo) {
+                    validRoom = { id: doc.id, data: data };
+                    break;
+                }
+            }
+        }
+        
+        if (validRoom) {
             // 既存のルームに参加
-            const roomDoc = waitingRooms.docs[0];
-            await joinRoom(roomDoc.id, roomDoc.data());
+            await joinRoom(validRoom.id, validRoom.data);
         } else {
             // 新しいルームを作成
             await createRoom();
