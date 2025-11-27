@@ -11,7 +11,7 @@ let gameState = {
     selectedCell: null,
     selectedCaptured: null, // 選択中の持ち駒
     moveHistory: [],
-    gameMode: null, // 'cpu', 'pvp', 'tsume'
+    gameMode: null, // 'cpu', 'pvp', 'tsume', 'online'
     difficulty: null, // 'ume', 'take', 'matsu'
     tsumeLevel: null, // 1, 3, 5
     moveCount: 0,
@@ -19,7 +19,13 @@ let gameState = {
     lastMove: null,
     isPlayerTurn: true,
     inCheck: false, // 王手状態
-    pendingPromotion: null // 成り待ちの情報
+    pendingPromotion: null, // 成り待ちの情報
+    // オンライン対戦用
+    matchId: null,
+    playerId: null,
+    playerRole: null, // 'sente' or 'gote'
+    opponentId: null,
+    isOnlineGame: false
 };
 
 // 駒の定義
@@ -608,6 +614,8 @@ function isCheckmate(board, player) {
 function handleCellClick(row, col) {
     if (gameState.isGameOver) return;
     if (!gameState.isPlayerTurn && gameState.gameMode === 'cpu') return;
+    // オンライン対戦時は自分のターン・役割をチェック
+    if (gameState.isOnlineGame && (gameState.currentPlayer !== gameState.playerRole || !gameState.isPlayerTurn)) return;
     if (gameState.pendingPromotion) return;
     
     const clickedPiece = gameState.board[row][col];
@@ -783,9 +791,18 @@ function finishMove() {
     if (isCheckmate(gameState.board, nextPlayer)) {
         gameState.isGameOver = true;
         const winner = nextPlayer === 'sente' ? 'gote' : 'sente';
-        showResult(winner);
+        if (gameState.isOnlineGame) {
+            finishOnlineTurn().then(() => showResult(winner));
+        } else {
+            showResult(winner);
+        }
         updateDisplay();
         return;
+    }
+    
+    // オンライン対戦の場合は更新
+    if (gameState.isOnlineGame) {
+        finishOnlineTurn();
     }
     
     updateDisplay();
@@ -1392,21 +1409,33 @@ function hideModal(id) {
 
 // DOMが読み込まれたら初期化
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded');
+    
+    // 初期盤面をセットアップ
+    gameState.board = getInitialBoard();
+    
     // 初期表示
     renderBoard();
     renderCapturedPieces();
     
     // モード選択ボタンのイベントリスナー
-    document.querySelectorAll('.mode-btn.shogi-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+    const modeButtons = document.querySelectorAll('.mode-btn.shogi-btn');
+    console.log('Found mode buttons:', modeButtons.length);
+    
+    modeButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            console.log('Button clicked:', btn.dataset);
             const mode = btn.dataset.mode;
             if (mode === 'cpu') {
                 const difficulty = btn.dataset.difficulty;
+                console.log('Starting CPU game with difficulty:', difficulty);
                 initGame('cpu', difficulty);
             } else if (mode === 'tsume') {
                 const level = parseInt(btn.dataset.level);
+                console.log('Starting Tsume with level:', level);
                 initGame('tsume', level);
             } else if (mode === 'pvp') {
+                console.log('Starting PVP game');
                 initGame('pvp', null);
             }
         });
@@ -1454,3 +1483,322 @@ window.showHint = showHint;
 window.confirmPromote = confirmPromote;
 window.declinePromote = declinePromote;
 window.hideModal = hideModal;
+window.showOnlineMatchModal = showOnlineMatchModal;
+window.startMatchmaking = startMatchmaking;
+window.generateInviteCode = generateInviteCode;
+window.joinWithCode = joinWithCode;
+window.cancelMatchmaking = cancelMatchmaking;
+
+// ====== オンライン対戦機能 ======
+
+// オンラインマッチモーダルを表示
+function showOnlineMatchModal() {
+    hideModal('mode-modal');
+    showModal('online-match-modal');
+}
+
+// マッチメイキング開始
+async function startMatchmaking() {
+    try {
+        await window.firebaseInitReady;
+        
+        gameState.playerId = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        
+        hideModal('online-match-modal');
+        showModal('matchmaking-modal');
+        
+        // マッチメイキング用ドキュメントを作成
+        const matchDoc = await window.db.collection('shogiRooms').add({
+            playerId: gameState.playerId,
+            status: 'waiting',
+            createdAt: new Date(),
+            expiresAt: new Date(Date.now() + 5 * 60 * 1000) // 5分後に期限切れ
+        });
+        
+        gameState.matchId = matchDoc.id;
+        
+        // 他のプレイヤーのマッチを探す
+        const querySnapshot = await window.db.collection('shogiRooms')
+            .where('status', '==', 'waiting')
+            .where('playerId', '!=', gameState.playerId)
+            .limit(1)
+            .get();
+        
+        if (!querySnapshot.empty) {
+            // マッチが見つかった
+            const opponentDoc = querySnapshot.docs[0];
+            const opponentId = opponentDoc.data().playerId;
+            
+            // マッチを開始
+            gameState.playerRole = 'gote';
+            gameState.opponentId = opponentId;
+            
+            // 自分のマッチを開始状態に更新
+            await matchDoc.update({
+                status: 'started',
+                opponentId: opponentId,
+                role: 'gote'
+            });
+            
+            // 相手のマッチも開始状態に更新
+            await opponentDoc.ref.update({
+                status: 'started',
+                opponentId: gameState.playerId,
+                role: 'sente'
+            });
+            
+            // ゲーム開始
+            startOnlineGame();
+        } else {
+            // 待機中...10秒後に再度チェック
+            setTimeout(checkForOpponent, 10000);
+        }
+    } catch (error) {
+        console.error('Matchmaking error:', error);
+        alert('マッチメイキングに失敗しました: ' + error);
+        hideModal('matchmaking-modal');
+        showModal('mode-modal');
+    }
+}
+
+// 相手がいるか定期的にチェック
+async function checkForOpponent() {
+    if (!gameState.matchId || gameState.playerRole) return;
+    
+    try {
+        const matchSnapshot = await window.db.collection('shogiRooms').doc(gameState.matchId).get();
+        const data = matchSnapshot.data();
+        
+        if (data && data.status === 'started' && data.opponentId) {
+            gameState.playerRole = data.role;
+            gameState.opponentId = data.opponentId;
+            startOnlineGame();
+        } else if (data && data.expiresAt.toDate() < new Date()) {
+            // 時間切れ
+            cancelMatchmaking();
+        } else {
+            // 待機中...10秒後に再度チェック
+            setTimeout(checkForOpponent, 10000);
+        }
+    } catch (error) {
+        console.error('Check opponent error:', error);
+    }
+}
+
+// マッチメイキングキャンセル
+async function cancelMatchmaking() {
+    try {
+        if (gameState.matchId) {
+            await window.db.collection('shogiRooms').doc(gameState.matchId).delete();
+        }
+    } catch (error) {
+        console.error('Cancel error:', error);
+    }
+    
+    hideModal('matchmaking-modal');
+    gameState.matchId = null;
+    gameState.playerId = null;
+    showModal('mode-modal');
+}
+
+// 招待コード生成
+async function generateInviteCode() {
+    try {
+        await window.firebaseInitReady;
+        
+        gameState.playerId = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        gameState.playerRole = 'sente';
+        
+        // ランダムな招待コードを生成（8文字の英数字）
+        const randomCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+        
+        const inviteDoc = await window.db.collection('shogiRooms').doc(randomCode).set({
+            code: randomCode,
+            senderId: gameState.playerId,
+            status: 'waiting',
+            createdAt: new Date(),
+            expiresAt: new Date(Date.now() + 30 * 60 * 1000) // 30分後に期限切れ
+        });
+        
+        gameState.matchId = randomCode;
+        
+        document.getElementById('invite-code-input').value = randomCode;
+        alert('招待コード: ' + randomCode + '\n\nこのコードを相手に教えてください。');
+        
+        // 相手の参加待機
+        waitForInviteAccept();
+    } catch (error) {
+        console.error('Invite code error:', error);
+        alert('招待コード生成に失敗しました: ' + error);
+    }
+}
+
+// 招待コードで参加
+async function joinWithCode() {
+    try {
+        await window.firebaseInitReady;
+        
+        const code = document.getElementById('invite-code-input').value.trim().toUpperCase();
+        if (!code) {
+            alert('招待コードを入力してください');
+            return;
+        }
+        
+        gameState.playerId = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        gameState.playerRole = 'gote';
+        
+        // コードから招待ドキュメントを取得
+        const inviteSnapshot = await window.db.collection('shogiRooms').doc(code).get();
+        
+        if (!inviteSnapshot.exists) {
+            alert('招待コードが見つかりません');
+            return;
+        }
+        
+        const inviteData = inviteSnapshot.data();
+        
+        if (inviteData.status !== 'waiting') {
+            alert('この招待コードは既に使用されています');
+            return;
+        }
+        
+        if (inviteData.expiresAt.toDate() < new Date()) {
+            alert('この招待コードの有効期限が切れています');
+            return;
+        }
+        
+        gameState.matchId = code;
+        gameState.opponentId = inviteData.senderId;
+        
+        // 参加を通知
+        await inviteSnapshot.ref.update({
+            status: 'accepted',
+            receiverId: gameState.playerId
+        });
+        
+        hideModal('online-match-modal');
+        startOnlineGame();
+    } catch (error) {
+        console.error('Join error:', error);
+        alert('参加に失敗しました: ' + error);
+    }
+}
+
+// 招待受け入れ待機
+async function waitForInviteAccept() {
+    hideModal('online-match-modal');
+    showModal('matchmaking-modal');
+    document.getElementById('matchmaking-status').textContent = '相手の参加を待機中...';
+    
+    const unsubscribe = window.db.collection('shogiRooms').doc(gameState.matchId)
+        .onSnapshot(doc => {
+            if (doc.exists && doc.data().status === 'accepted') {
+                gameState.opponentId = doc.data().receiverId;
+                unsubscribe();
+                startOnlineGame();
+            }
+        });
+    
+    // タイムアウト設定
+    setTimeout(() => {
+        unsubscribe();
+        cancelMatchmaking();
+    }, 30 * 60 * 1000); // 30分
+}
+
+// オンラインゲーム開始
+async function startOnlineGame() {
+    hideModal('matchmaking-modal');
+    
+    gameState.gameMode = 'online';
+    gameState.isOnlineGame = true;
+    gameState.board = getInitialBoard();
+    gameState.currentPlayer = 'sente';
+    gameState.capturedPieces = { sente: [], gote: [] };
+    gameState.selectedCell = null;
+    gameState.selectedCaptured = null;
+    gameState.moveHistory = [];
+    gameState.moveCount = 0;
+    gameState.isGameOver = false;
+    gameState.lastMove = null;
+    gameState.isPlayerTurn = gameState.playerRole === 'sente';
+    gameState.inCheck = false;
+    gameState.pendingPromotion = null;
+    
+    // 盤面をFirebaseに保存
+    await window.db.collection('shogiRooms').doc(gameState.matchId).update({
+        board: boardToFlat(gameState.board),
+        currentPlayer: 'sente',
+        sente: gameState.playerRole === 'sente' ? gameState.playerId : gameState.opponentId,
+        gote: gameState.playerRole === 'gote' ? gameState.playerId : gameState.opponentId,
+        moveHistory: [],
+        status: 'playing',
+        createdAt: new Date()
+    });
+    
+    // リアルタイム更新をリッスン
+    subscribeToGameUpdates();
+    
+    updateDisplay();
+}
+
+// 盤面を1次元配列に変換
+function boardToFlat(board) {
+    return board.flat().map(piece => piece ? { type: piece.type, owner: piece.owner } : null);
+}
+
+// 1次元配列を盤面に変換
+function flatToBoard(flat) {
+    const board = [];
+    for (let i = 0; i < 9; i++) {
+        board[i] = flat.slice(i * 9, (i + 1) * 9);
+    }
+    return board;
+}
+
+// ゲーム更新をリッスン
+function subscribeToGameUpdates() {
+    window.db.collection('shogiRooms').doc(gameState.matchId)
+        .onSnapshot(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                
+                // 相手の手を反映
+                if (data.moveHistory && data.moveHistory.length > gameState.moveHistory.length) {
+                    const lastMove = data.moveHistory[data.moveHistory.length - 1];
+                    gameState.board = flatToBoard(data.board);
+                    gameState.currentPlayer = data.currentPlayer;
+                    gameState.moveCount = data.moveHistory.length;
+                    gameState.isPlayerTurn = true;
+                    
+                    // 盤面を再描画
+                    renderBoard();
+                    renderCapturedPieces();
+                    updateDisplay();
+                }
+                
+                // ゲーム終了
+                if (data.status === 'finished') {
+                    gameState.isGameOver = true;
+                    showResult(data.winner);
+                }
+            }
+        });
+}
+
+// オンライン手番終了時に更新
+async function finishOnlineTurn() {
+    try {
+        const flat = boardToFlat(gameState.board);
+        await window.db.collection('shogiRooms').doc(gameState.matchId).update({
+            board: flat,
+            currentPlayer: gameState.currentPlayer,
+            moveHistory: gameState.moveHistory,
+            status: gameState.isGameOver ? 'finished' : 'playing',
+            winner: gameState.isGameOver ? 
+                (gameState.currentPlayer === 'sente' ? 'gote' : 'sente') : null
+        });
+    } catch (error) {
+        console.error('Turn update error:', error);
+    }
+}

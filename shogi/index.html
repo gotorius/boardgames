@@ -6,12 +6,16 @@
     <title>将棋</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
 </head>
 <body>
     <div class="game-container">
         <header class="game-header">
             <a href="../index.html" class="home-link">← ホーム</a>
-            <h1>♟️ 将棋</h1>
+            <h1>将棋</h1>
             <div class="game-controls">
                 <button id="new-game-btn" class="btn btn-primary">新しい対局</button>
                 <button id="undo-btn" class="btn btn-secondary" disabled>待った</button>
@@ -87,22 +91,22 @@
         <!-- モード選択モーダル -->
         <div id="mode-modal" class="modal">
             <div class="modal-content">
-                <h2>🎌 対局モード選択</h2>
+                <h2>対局モード選択</h2>
                 <div class="mode-options">
                     <div class="mode-section">
                         <h3>CPU対戦</h3>
                         <div class="difficulty-options">
-                            <button class="mode-btn shogi-btn" data-mode="cpu" data-difficulty="ume">
+                            <button class="mode-btn shogi-btn" onclick="initGame('cpu', 'ume')">
                                 <span class="mode-icon">🌸</span>
                                 <span class="mode-name">梅</span>
                                 <span class="mode-desc">初心者向け</span>
                             </button>
-                            <button class="mode-btn shogi-btn" data-mode="cpu" data-difficulty="take">
+                            <button class="mode-btn shogi-btn" onclick="initGame('cpu', 'take')">
                                 <span class="mode-icon">🎋</span>
                                 <span class="mode-name">竹</span>
                                 <span class="mode-desc">中級者向け</span>
                             </button>
-                            <button class="mode-btn shogi-btn" data-mode="cpu" data-difficulty="matsu">
+                            <button class="mode-btn shogi-btn" onclick="initGame('cpu', 'matsu')">
                                 <span class="mode-icon">🌲</span>
                                 <span class="mode-name">松</span>
                                 <span class="mode-desc">上級者向け</span>
@@ -112,17 +116,17 @@
                     <div class="mode-section">
                         <h3>詰将棋</h3>
                         <div class="tsume-options">
-                            <button class="mode-btn shogi-btn" data-mode="tsume" data-level="1">
+                            <button class="mode-btn shogi-btn" onclick="initGame('tsume', 1)">
                                 <span class="mode-icon">①</span>
                                 <span class="mode-name">一手詰</span>
                                 <span class="mode-desc">入門編</span>
                             </button>
-                            <button class="mode-btn shogi-btn" data-mode="tsume" data-level="3">
+                            <button class="mode-btn shogi-btn" onclick="initGame('tsume', 3)">
                                 <span class="mode-icon">③</span>
                                 <span class="mode-name">三手詰</span>
                                 <span class="mode-desc">初級編</span>
                             </button>
-                            <button class="mode-btn shogi-btn" data-mode="tsume" data-level="5">
+                            <button class="mode-btn shogi-btn" onclick="initGame('tsume', 5)">
                                 <span class="mode-icon">⑤</span>
                                 <span class="mode-name">五手詰</span>
                                 <span class="mode-desc">中級編</span>
@@ -132,16 +136,65 @@
                     <div class="mode-section">
                         <h3>2人対戦</h3>
                         <div class="pvp-options">
-                            <button class="mode-btn shogi-btn wide" data-mode="pvp">
+                            <button class="mode-btn shogi-btn wide" onclick="initGame('pvp', null)">
                                 <span class="mode-icon">👥</span>
                                 <span class="mode-name">ローカル対戦</span>
                                 <span class="mode-desc">同じ端末で2人対戦</span>
                             </button>
                         </div>
                     </div>
+                    <div class="mode-section">
+                        <h3>オンライン対戦</h3>
+                        <div class="pvp-options">
+                            <button class="mode-btn shogi-btn wide" onclick="showOnlineMatchModal()">
+                                <span class="mode-icon">🌐</span>
+                                <span class="mode-name">オンライン対戦</span>
+                                <span class="mode-desc">インターネット経由で対戦</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-buttons">
                     <a href="../index.html" class="btn btn-secondary">ホームに戻る</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- オンラインマッチモーダル -->
+        <div id="online-match-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>🌐 オンライン対戦</h2>
+                <div class="online-match-options">
+                    <button class="mode-btn shogi-btn wide" onclick="startMatchmaking()">
+                        <span class="mode-icon">🔄</span>
+                        <span class="mode-name">対戦相手を探す</span>
+                        <span class="mode-desc">マッチメイキングで対戦相手を探します</span>
+                    </button>
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(255,215,0,0.1); border-radius: 8px;">
+                        <p style="font-size: 0.9rem; margin-bottom: 10px;">招待コード（友人と対戦）:</p>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="invite-code-input" placeholder="招待コードを入力" style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #8b5a2b;">
+                            <button class="btn btn-secondary" onclick="joinWithCode()">参加</button>
+                        </div>
+                        <button class="btn btn-primary" onclick="generateInviteCode()" style="margin-top: 10px; width: 100%;">招待コードを生成</button>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="hideModal('online-match-modal'); showModal('mode-modal')">戻る</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- マッチメイキング中モーダル -->
+        <div id="matchmaking-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>対戦相手を探中...</h2>
+                <div style="text-align: center; margin: 30px 0;">
+                    <div class="thinking-spinner" style="margin: 0 auto 20px;"></div>
+                    <p id="matchmaking-status">マッチメイキング中...</p>
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="cancelMatchmaking()">キャンセル</button>
                 </div>
             </div>
         </div>
