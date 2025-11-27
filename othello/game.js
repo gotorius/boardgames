@@ -1056,7 +1056,7 @@ class OthelloGame {
         
         if (this.onlineRoomId) {
             try {
-                await db.collection('othelloRooms').doc(this.onlineRoomId).delete();
+                await window.db.collection('othelloRooms').doc(this.onlineRoomId).delete();
             } catch (error) {
                 console.error('ルーム削除エラー:', error);
             }
