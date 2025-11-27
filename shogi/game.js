@@ -205,8 +205,15 @@ function renderBoard() {
     const boardEl = document.getElementById('board');
     boardEl.innerHTML = '';
     
-    for (let row = 0; row < 9; row++) {
-        for (let col = 0; col < 9; col++) {
+    // オンライン対戦で後手の場合は盤面を反転
+    const shouldFlip = gameState.isOnlineGame && gameState.playerRole === 'gote';
+    
+    for (let displayRow = 0; displayRow < 9; displayRow++) {
+        for (let displayCol = 0; displayCol < 9; displayCol++) {
+            // 実際の盤面座標（反転時は逆順）
+            const row = shouldFlip ? (8 - displayRow) : displayRow;
+            const col = shouldFlip ? (8 - displayCol) : displayCol;
+            
             const cell = document.createElement('div');
             cell.className = 'cell';
             cell.dataset.row = row;
@@ -216,8 +223,15 @@ function renderBoard() {
             if (piece) {
                 const pieceEl = document.createElement('div');
                 pieceEl.className = 'piece';
-                if (piece.owner === 'gote') {
-                    pieceEl.classList.add('opponent');
+                // 反転時は駒の向きも反転
+                if (shouldFlip) {
+                    if (piece.owner === 'sente') {
+                        pieceEl.classList.add('opponent');
+                    }
+                } else {
+                    if (piece.owner === 'gote') {
+                        pieceEl.classList.add('opponent');
+                    }
                 }
                 if (piece.type.startsWith('+')) {
                     pieceEl.classList.add('promoted');
@@ -254,11 +268,21 @@ function renderBoard() {
 
 // 持ち駒の描画
 function renderCapturedPieces() {
-    // senteは my-captured-list, goteは opponent-captured-list
-    const idMap = {
-        'sente': 'my-captured-list',
-        'gote': 'opponent-captured-list'
-    };
+    // オンライン対戦時は自分の役割に応じて表示を入れ替え
+    let idMap;
+    if (gameState.isOnlineGame && gameState.playerRole === 'gote') {
+        // 後手の場合は入れ替え（自分が後手なので、goteがmy、senteがopponent）
+        idMap = {
+            'gote': 'my-captured-list',
+            'sente': 'opponent-captured-list'
+        };
+    } else {
+        // 先手または非オンライン（senteがmy、goteがopponent）
+        idMap = {
+            'sente': 'my-captured-list',
+            'gote': 'opponent-captured-list'
+        };
+    }
     
     ['sente', 'gote'].forEach(player => {
         const listEl = document.getElementById(idMap[player]);
@@ -1242,14 +1266,39 @@ function updateDisplay() {
         modeText = 'ローカル対戦';
     } else if (gameState.gameMode === 'tsume') {
         modeText = `詰将棋（${gameState.tsumeLevel}手詰）`;
+    } else if (gameState.gameMode === 'online') {
+        modeText = 'オンライン対戦';
     }
     document.getElementById('game-mode').textContent = modeText;
     
-    // プレイヤー表示（クラスで選択）
+    // プレイヤー名表示
+    if (gameState.isOnlineGame) {
+        // オンライン対戦時：自分の役割に応じて名前を表示
+        const myRole = gameState.playerRole;
+        const opponentRole = myRole === 'sente' ? 'gote' : 'sente';
+        const myRoleText = myRole === 'sente' ? '先手' : '後手';
+        const opponentRoleText = opponentRole === 'sente' ? '先手' : '後手';
+        document.getElementById('my-name').textContent = `${myRoleText}（${gameState.playerName}）`;
+        document.getElementById('opponent-name').textContent = `${opponentRoleText}（${gameState.opponentName}）`;
+    } else if (gameState.gameMode === 'cpu') {
+        const diffNames = { 'ume': '梅', 'take': '竹', 'matsu': '松' };
+        document.getElementById('my-name').textContent = '先手（あなた）';
+        document.getElementById('opponent-name').textContent = `後手（CPU ${diffNames[gameState.difficulty]}）`;
+    } else if (gameState.gameMode === 'pvp') {
+        document.getElementById('my-name').textContent = '先手';
+        document.getElementById('opponent-name').textContent = '後手';
+    }
+    
+    // プレイヤー表示（クラスで選択）- オンライン対戦時は自分の役割基準
     const myPlayer = document.querySelector('.player-info.my-player');
     const opponentPlayer = document.querySelector('.player-info.opponent-player');
-    if (myPlayer) myPlayer.classList.toggle('active', gameState.currentPlayer === 'sente');
-    if (opponentPlayer) opponentPlayer.classList.toggle('active', gameState.currentPlayer === 'gote');
+    if (gameState.isOnlineGame) {
+        if (myPlayer) myPlayer.classList.toggle('active', gameState.currentPlayer === gameState.playerRole);
+        if (opponentPlayer) opponentPlayer.classList.toggle('active', gameState.currentPlayer !== gameState.playerRole);
+    } else {
+        if (myPlayer) myPlayer.classList.toggle('active', gameState.currentPlayer === 'sente');
+        if (opponentPlayer) opponentPlayer.classList.toggle('active', gameState.currentPlayer === 'gote');
+    }
     
     // ボタン状態
     document.getElementById('undo-btn').disabled = gameState.moveHistory.length === 0 || gameState.isGameOver;
