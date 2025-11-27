@@ -413,6 +413,29 @@ body {
     flex-wrap: wrap;
 }
 
+.pvp-options {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.mode-section:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.mode-section:last-child .mode-btn {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 15px;
+    padding: 20px;
+    min-width: auto;
+    flex: 1;
+}
+
 .mode-btn {
     display: flex;
     flex-direction: column;
