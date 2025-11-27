@@ -929,6 +929,17 @@ class OthelloGame {
             return;
         }
         
+        // Firebase の初期化を待つ
+        try {
+            if (window.firebaseInitReady) {
+                await window.firebaseInitReady;
+            }
+        } catch (error) {
+            console.error('Firebase 初期化エラー:', error);
+            alert('Firebase の初期化に失敗しました。ページをリロードしてください。');
+            return;
+        }
+        
         // 名前を保存
         localStorage.setItem('othelloPlayerName', playerName);
         this.playerName = playerName;
