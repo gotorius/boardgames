@@ -454,6 +454,13 @@ body {
     min-width: 250px;
 }
 
+.pvp-options {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
 .mode-icon {
     font-size: 2rem;
 }
