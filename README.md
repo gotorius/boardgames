@@ -9,8 +9,8 @@
 ## 📸 スクリーンショット
 
 <p align="center">
-  <img src="images/freecall.png" alt="フリーセル" width="45%">
-  <img src="images/othello.png" alt="オセロ" width="45%">
+  <img src="images/freecall.jpg" alt="フリーセル" width="45%">
+  <img src="images/othello.jpg" alt="オセロ" width="45%">
 </p>
 
 ## 🎲 ゲーム一覧
