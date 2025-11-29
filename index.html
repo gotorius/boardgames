@@ -16,7 +16,23 @@
         <main class="games-grid">
             <!-- フリーセル -->
             <a href="freecell/index.html" class="game-card available">
-                <div class="game-icon">🃏</div>
+                <div class="game-icon">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <!-- カードの背景 -->
+                        <rect x="8" y="10" width="35" height="50" rx="3" fill="#fff" stroke="#333" stroke-width="1.5"/>
+                        <rect x="57" y="10" width="35" height="50" rx="3" fill="#fff" stroke="#333" stroke-width="1.5"/>
+                        <rect x="8" y="45" width="35" height="50" rx="3" fill="#fff" stroke="#333" stroke-width="1.5"/>
+                        <rect x="57" y="45" width="35" height="50" rx="3" fill="#fff" stroke="#333" stroke-width="1.5"/>
+                        <!-- スペード -->
+                        <text x="25" y="45" font-size="24" fill="#000" text-anchor="middle">♠</text>
+                        <!-- ハート -->
+                        <text x="75" y="45" font-size="24" fill="#e33" text-anchor="middle">♥</text>
+                        <!-- クラブ -->
+                        <text x="25" y="82" font-size="24" fill="#000" text-anchor="middle">♣</text>
+                        <!-- ダイヤ -->
+                        <text x="75" y="82" font-size="24" fill="#e33" text-anchor="middle">♦</text>
+                    </svg>
+                </div>
                 <div class="game-info">
                     <h2>フリーセル</h2>
                     <p>クラシックなトランプソリティア</p>
@@ -31,7 +47,24 @@
 
             <!-- オセロ -->
             <a href="othello/index.html" class="game-card available">
-                <div class="game-icon">⚪⚫</div>
+                <div class="game-icon">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 盤面背景 -->
+                        <rect x="10" y="10" width="80" height="80" fill="#006400" stroke="#004d00" stroke-width="3" rx="4"/>
+                        <!-- グリッド線（3x3） -->
+                        <line x1="36.7" y1="10" x2="36.7" y2="90" stroke="#004d00" stroke-width="1"/>
+                        <line x1="63.3" y1="10" x2="63.3" y2="90" stroke="#004d00" stroke-width="1"/>
+                        <line x1="10" y1="36.7" x2="90" y2="36.7" stroke="#004d00" stroke-width="1"/>
+                        <line x1="10" y1="63.3" x2="90" y2="63.3" stroke="#004d00" stroke-width="1"/>
+                        <!-- 白石 -->
+                        <circle cx="23" cy="50" r="9" fill="#fff" stroke="#ccc" stroke-width="1"/>
+                        <circle cx="77" cy="50" r="9" fill="#fff" stroke="#ccc" stroke-width="1"/>
+                        <!-- 黒石 -->
+                        <circle cx="50" cy="23" r="9" fill="#1a1a1a"/>
+                        <circle cx="50" cy="50" r="9" fill="#1a1a1a"/>
+                        <circle cx="50" cy="77" r="9" fill="#1a1a1a"/>
+                    </svg>
+                </div>
                 <div class="game-info">
                     <h2>オセロ</h2>
                     <p>白と黒の戦略ゲーム</p>
@@ -46,7 +79,26 @@
 
             <!-- 将棋 -->
             <a href="shogi/index.html" class="game-card available">
-                <div class="game-icon">♟️</div>
+                <div class="game-icon">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 将棋盤背景 -->
+                        <rect x="10" y="10" width="80" height="80" fill="#deb887" stroke="#8b7355" stroke-width="2" rx="2"/>
+                        <!-- 格子線（3x3） -->
+                        <line x1="36.7" y1="10" x2="36.7" y2="90" stroke="#8b7355" stroke-width="1"/>
+                        <line x1="63.3" y1="10" x2="63.3" y2="90" stroke="#8b7355" stroke-width="1"/>
+                        <line x1="10" y1="36.7" x2="90" y2="36.7" stroke="#8b7355" stroke-width="1"/>
+                        <line x1="10" y1="63.3" x2="90" y2="63.3" stroke="#8b7355" stroke-width="1"/>
+                        <!-- 将棋の駒（王将）五角形 -->
+                        <polygon points="50,18 38,28 40,45 60,45 62,28" fill="#f5deb3" stroke="#8b4513" stroke-width="1.5"/>
+                        <text x="50" y="40" font-size="12" fill="#000" text-anchor="middle" font-weight="bold">王</text>
+                        <!-- 将棋の駒（歩）五角形 -->
+                        <polygon points="23,52 15,59 17,72 29,72 31,59" fill="#f5deb3" stroke="#8b4513" stroke-width="1"/>
+                        <text x="23" y="67" font-size="9" fill="#000" text-anchor="middle">歩</text>
+                        <!-- 相手の駒（逆向き・飛車）五角形 -->
+                        <polygon points="77,88 85,81 83,68 71,68 69,81" fill="#f5deb3" stroke="#8b4513" stroke-width="1"/>
+                        <text x="77" y="83" font-size="9" fill="#000" text-anchor="middle" transform="rotate(180 77 78)">飛</text>
+                    </svg>
+                </div>
                 <div class="game-info">
                     <h2>将棋</h2>
                     <p>日本の伝統的な戦略ゲーム</p>
@@ -59,33 +111,73 @@
                 <div class="play-btn">プレイ →</div>
             </a>
 
-            <!-- チェス（準備中） -->
-            <div class="game-card coming-soon">
-                <div class="game-icon">♛</div>
+            <!-- チェス -->
+            <a href="chess/index.html" class="game-card available">
+                <div class="game-icon">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <!-- チェス盤 -->
+                        <rect x="15" y="15" width="70" height="70" fill="#f0d9b5" stroke="#8b4513" stroke-width="2" rx="2"/>
+                        <!-- チェッカーパターン -->
+                        <rect x="15" y="15" width="17.5" height="17.5" fill="#b58863"/>
+                        <rect x="50" y="15" width="17.5" height="17.5" fill="#b58863"/>
+                        <rect x="32.5" y="32.5" width="17.5" height="17.5" fill="#b58863"/>
+                        <rect x="67.5" y="32.5" width="17.5" height="17.5" fill="#b58863"/>
+                        <rect x="15" y="50" width="17.5" height="17.5" fill="#b58863"/>
+                        <rect x="50" y="50" width="17.5" height="17.5" fill="#b58863"/>
+                        <rect x="32.5" y="67.5" width="17.5" height="17.5" fill="#b58863"/>
+                        <rect x="67.5" y="67.5" width="17.5" height="17.5" fill="#b58863"/>
+                        <!-- 白キング -->
+                        <text x="30" y="48" font-size="28" fill="#fff" stroke="#000" stroke-width="1" text-anchor="middle">♔</text>
+                        <!-- 黒クイーン -->
+                        <text x="70" y="75" font-size="28" fill="#1a1a1a" text-anchor="middle">♛</text>
+                    </svg>
+                </div>
                 <div class="game-info">
                     <h2>チェス</h2>
                     <p>世界で愛される戦略ボードゲーム</p>
                     <div class="game-features">
-                        <span class="feature">2人用</span>
+                        <span class="feature">1-2人用</span>
                         <span class="feature">CPU対戦</span>
+                        <span class="feature">オンライン対戦</span>
                     </div>
                 </div>
-                <div class="coming-soon-label">Coming Soon</div>
-            </div>
+                <div class="play-btn">プレイ →</div>
+            </a>
 
-            <!-- 五目並べ（準備中） -->
-            <div class="game-card coming-soon">
-                <div class="game-icon">⭕</div>
+            <!-- 五目並べ -->
+            <a href="gomoku/index.html" class="game-card available">
+                <div class="game-icon">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 碁盤背景 -->
+                        <rect x="10" y="10" width="80" height="80" fill="#deb887" stroke="#8b7355" stroke-width="2" rx="3"/>
+                        <!-- 格子線 -->
+                        <line x1="25" y1="25" x2="25" y2="75" stroke="#5c3d2e" stroke-width="1.5"/>
+                        <line x1="50" y1="25" x2="50" y2="75" stroke="#5c3d2e" stroke-width="1.5"/>
+                        <line x1="75" y1="25" x2="75" y2="75" stroke="#5c3d2e" stroke-width="1.5"/>
+                        <line x1="25" y1="25" x2="75" y2="25" stroke="#5c3d2e" stroke-width="1.5"/>
+                        <line x1="25" y1="50" x2="75" y2="50" stroke="#5c3d2e" stroke-width="1.5"/>
+                        <line x1="25" y1="75" x2="75" y2="75" stroke="#5c3d2e" stroke-width="1.5"/>
+                        <!-- 黒石 -->
+                        <circle cx="25" cy="50" r="8" fill="#1a1a1a"/>
+                        <circle cx="50" cy="50" r="8" fill="#1a1a1a"/>
+                        <circle cx="75" cy="25" r="8" fill="#1a1a1a"/>
+                        <!-- 白石 -->
+                        <circle cx="50" cy="25" r="8" fill="#fff" stroke="#ccc" stroke-width="1"/>
+                        <circle cx="25" cy="75" r="8" fill="#fff" stroke="#ccc" stroke-width="1"/>
+                        <circle cx="75" cy="50" r="8" fill="#fff" stroke="#ccc" stroke-width="1"/>
+                    </svg>
+                </div>
                 <div class="game-info">
                     <h2>五目並べ</h2>
                     <p>シンプルで奥深い対戦ゲーム</p>
                     <div class="game-features">
-                        <span class="feature">2人用</span>
+                        <span class="feature">1-2人用</span>
                         <span class="feature">CPU対戦</span>
+                        <span class="feature">オンライン対戦</span>
                     </div>
                 </div>
-                <div class="coming-soon-label">Coming Soon</div>
-            </div>
+                <div class="play-btn">プレイ →</div>
+            </a>
 
             <!-- マインスイーパー -->
             <a href="minesweeper/index.html" class="game-card available">
