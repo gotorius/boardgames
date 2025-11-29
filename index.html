@@ -87,19 +87,45 @@
                 <div class="coming-soon-label">Coming Soon</div>
             </div>
 
-            <!-- マインスイーパー（準備中） -->
-            <div class="game-card coming-soon">
-                <div class="game-icon">💣</div>
+            <!-- マインスイーパー -->
+            <a href="minesweeper/index.html" class="game-card available">
+                <div class="game-icon">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <!-- グリッド背景 -->
+                        <rect x="15" y="15" width="70" height="70" fill="#c0c0c0" stroke="#999" stroke-width="2" rx="3"/>
+                        <!-- セル -->
+                        <rect x="20" y="20" width="18" height="18" fill="#bdbdbd" stroke="#888" stroke-width="1"/>
+                        <rect x="41" y="20" width="18" height="18" fill="#a0a0a0" stroke="#888" stroke-width="1"/>
+                        <rect x="62" y="20" width="18" height="18" fill="#bdbdbd" stroke="#888" stroke-width="1"/>
+                        <rect x="20" y="41" width="18" height="18" fill="#a0a0a0" stroke="#888" stroke-width="1"/>
+                        <rect x="41" y="41" width="18" height="18" fill="#ff4444" stroke="#888" stroke-width="1"/>
+                        <rect x="62" y="41" width="18" height="18" fill="#a0a0a0" stroke="#888" stroke-width="1"/>
+                        <rect x="20" y="62" width="18" height="18" fill="#bdbdbd" stroke="#888" stroke-width="1"/>
+                        <rect x="41" y="62" width="18" height="18" fill="#a0a0a0" stroke="#888" stroke-width="1"/>
+                        <rect x="62" y="62" width="18" height="18" fill="#bdbdbd" stroke="#888" stroke-width="1"/>
+                        <!-- 爆弾 -->
+                        <circle cx="50" cy="50" r="6" fill="#000"/>
+                        <line x1="50" y1="40" x2="50" y2="60" stroke="#000" stroke-width="2"/>
+                        <line x1="40" y1="50" x2="60" y2="50" stroke="#000" stroke-width="2"/>
+                        <!-- 数字 -->
+                        <text x="29" y="35" font-size="12" font-weight="bold" fill="#0000ff" text-anchor="middle">1</text>
+                        <text x="71" y="56" font-size="12" font-weight="bold" fill="#008000" text-anchor="middle">2</text>
+                        <!-- フラグ -->
+                        <polygon points="71,67 71,77 65,72" fill="#ff0000"/>
+                        <line x1="71" y1="67" x2="71" y2="80" stroke="#000" stroke-width="1.5"/>
+                    </svg>
+                </div>
                 <div class="game-info">
                     <h2>マインスイーパー</h2>
                     <p>論理パズルゲーム</p>
                     <div class="game-features">
                         <span class="feature">1人用</span>
+                        <span class="feature">オンライン対戦</span>
                         <span class="feature">ランキング</span>
                     </div>
                 </div>
-                <div class="coming-soon-label">Coming Soon</div>
-            </div>
+                <div class="play-btn">プレイ →</div>
+            </a>
         </main>
 
         <footer class="footer">
