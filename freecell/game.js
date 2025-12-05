@@ -72,7 +72,6 @@ class FreeCellGame {
         document.getElementById('close-ranking-btn').addEventListener('click', () => {
             this.rankingModal.classList.add('hidden');
         });
-        document.getElementById('clear-ranking-btn').addEventListener('click', () => this.clearRankings());
         document.getElementById('save-score-btn').addEventListener('click', () => this.saveScore());
         
         // 対戦モード関連のイベント
@@ -1000,6 +999,7 @@ class FreeCellGame {
         // すべてのカードが順序通りに並んでいるかチェック
         let canAutoComplete = true;
         
+        // 各列が昇順（上から下にランクが減少）に並んでいるかチェック
         for (const column of this.columns) {
             for (let i = 0; i < column.length - 1; i++) {
                 if (column[i].rank < column[i + 1].rank) {
@@ -1010,18 +1010,21 @@ class FreeCellGame {
             if (!canAutoComplete) break;
         }
         
-        for (const cell of this.freeCells) {
-            if (cell !== null) {
-                // フリーセルにカードがある場合、そのカードより低いランクのカードが
-                // まだカード列にあるかチェック
-                for (const column of this.columns) {
-                    for (const card of column) {
-                        if (card.rank < cell.rank) {
-                            canAutoComplete = false;
-                            break;
+        // フリーセルのカードもチェック（そのカードより小さいランクが列にあれば自動完成不可）
+        if (canAutoComplete) {
+            for (const cell of this.freeCells) {
+                if (cell !== null) {
+                    for (const column of this.columns) {
+                        for (const card of column) {
+                            if (card.rank < cell.rank) {
+                                canAutoComplete = false;
+                                break;
+                            }
                         }
+                        if (!canAutoComplete) break;
                     }
                 }
+                if (!canAutoComplete) break;
             }
         }
         
@@ -1033,6 +1036,9 @@ class FreeCellGame {
     async autoComplete() {
         if (this.isAutoCompleting) return;
         this.isAutoCompleting = true;
+        
+        // 自動完成開始時にタイマーを停止
+        clearInterval(this.timerInterval);
         
         const autoBtn = document.getElementById('auto-complete-btn');
         autoBtn.disabled = true;
