@@ -996,10 +996,9 @@ class FreeCellGame {
     
     // 自動完成チェック
     checkAutoComplete() {
-        // すべてのカードが順序通りに並んでいるかチェック
+        // 各列が昇順（上から下にランクが減少）に並んでいるかチェック
         let canAutoComplete = true;
         
-        // 各列が昇順（上から下にランクが減少）に並んでいるかチェック
         for (const column of this.columns) {
             for (let i = 0; i < column.length - 1; i++) {
                 if (column[i].rank < column[i + 1].rank) {
@@ -1010,7 +1009,8 @@ class FreeCellGame {
             if (!canAutoComplete) break;
         }
         
-        // フリーセルのカードもチェック（そのカードより小さいランクが列にあれば自動完成不可）
+        // フリーセルのカードと列のカードの関係をチェック
+        // フリーセルのカードより小さいランクのカードが列にある場合は自動完成不可
         if (canAutoComplete) {
             for (const cell of this.freeCells) {
                 if (cell !== null) {
@@ -1022,6 +1022,17 @@ class FreeCellGame {
                             }
                         }
                         if (!canAutoComplete) break;
+                    }
+                    // 他のフリーセルのカードもチェック
+                    if (canAutoComplete) {
+                        for (const otherCell of this.freeCells) {
+                            if (otherCell !== null && otherCell !== cell) {
+                                if (otherCell.rank < cell.rank) {
+                                    canAutoComplete = false;
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
                 if (!canAutoComplete) break;
@@ -1167,7 +1178,20 @@ class FreeCellGame {
         this.rankingModal.classList.remove('hidden');
         // 現在アクティブなタブで表示
         const activeTab = document.querySelector('.tab-btn.active');
-        this.renderRankingList(activeTab ? activeTab.dataset.tab : 'time');
+        this.rankingPage = 0;
+        this.rankingsPerPage = 10;
+        this.totalRankings = [];
+        this.renderRankingList(activeTab ? activeTab.dataset.tab : 'performance');
+    }
+    
+    // パフォーマンススコアを計算（手数とタイムの複合評価）
+    // 低いほど良い：手数の重み60% + タイム（秒）の重み40%
+    calculatePerformance(moves, timeInSeconds) {
+        // 理想値：52手（最小手数）、60秒（1分）
+        // 手数スコア：moves（そのまま使用、低いほど良い）
+        // タイムスコア：秒数（低いほど良い）
+        // パフォーマンス = moves * 0.6 + timeInSeconds * 0.4
+        return Math.round((moves * 0.6 + timeInSeconds * 0.4) * 100) / 100;
     }
     
     // ランキングリストを描画（Firebase）
@@ -1176,11 +1200,9 @@ class FreeCellGame {
         listContainer.innerHTML = '<div class="ranking-empty">読み込み中...</div>';
         
         try {
-            // Firebaseからランキング取得
-            const sortField = sortBy === 'time' ? 'time' : 'moves';
+            // Firebaseからランキング取得（全件取得してソート）
             const snapshot = await db.collection('rankings')
-                .orderBy(sortField, 'asc')
-                .limit(20)
+                .limit(100)
                 .get();
             
             if (snapshot.empty) {
@@ -1188,51 +1210,111 @@ class FreeCellGame {
                 return;
             }
             
-            const rankings = [];
+            this.totalRankings = [];
             snapshot.forEach(doc => {
                 const data = doc.data();
-                rankings.push({
+                const performance = this.calculatePerformance(data.moves, data.time);
+                this.totalRankings.push({
                     id: doc.id,
                     ...data,
-                    // Firestoreのタイムスタンプを変換
+                    performance: performance,
                     dateDisplay: data.dateDisplay || (data.date ? this.formatDate(data.date.toDate()) : '不明')
                 });
             });
             
-            listContainer.innerHTML = rankings.map((score, index) => {
-                const rank = index + 1;
-                let rankClass = '';
-                let rankEmoji = rank;
-                
-                if (rank === 1) {
-                    rankClass = 'gold';
-                    rankEmoji = '🥇';
-                } else if (rank === 2) {
-                    rankClass = 'silver';
-                    rankEmoji = '🥈';
-                } else if (rank === 3) {
-                    rankClass = 'bronze';
-                    rankEmoji = '🥉';
-                }
-                
-                const mainScore = sortBy === 'time' ? score.timeDisplay : `${score.moves}手`;
-                const subScore = sortBy === 'time' ? `${score.moves}手` : score.timeDisplay;
-                
-                return `
-                    <div class="ranking-item ${rankClass}">
-                        <div class="ranking-rank">${rankEmoji}</div>
-                        <div class="ranking-info">
-                            <div class="ranking-name">${this.escapeHtml(score.name)}</div>
-                            <div class="ranking-details">${score.dateDisplay} | ${subScore}</div>
-                        </div>
-                        <div class="ranking-score">${mainScore}</div>
-                    </div>
-                `;
-            }).join('');
+            // ソート
+            if (sortBy === 'performance') {
+                this.totalRankings.sort((a, b) => a.performance - b.performance);
+            } else if (sortBy === 'time') {
+                this.totalRankings.sort((a, b) => a.time - b.time);
+            } else {
+                this.totalRankings.sort((a, b) => a.moves - b.moves);
+            }
+            
+            this.rankingPage = 0;
+            this.currentSortBy = sortBy;
+            this.renderRankingPage();
             
         } catch (error) {
             console.error('ランキング取得エラー:', error);
             listContainer.innerHTML = '<div class="ranking-empty">ランキングの取得に失敗しました<br>再度お試しください</div>';
+        }
+    }
+    
+    renderRankingPage() {
+        const listContainer = document.getElementById('ranking-list');
+        const start = this.rankingPage * this.rankingsPerPage;
+        const end = start + this.rankingsPerPage;
+        const pageRankings = this.totalRankings.slice(start, end);
+        const totalPages = Math.ceil(this.totalRankings.length / this.rankingsPerPage);
+        
+        const rankingsHtml = pageRankings.map((score, index) => {
+            const rank = start + index + 1;
+            let rankClass = '';
+            let rankEmoji = rank;
+            
+            if (rank === 1) {
+                rankClass = 'gold';
+                rankEmoji = '🥇';
+            } else if (rank === 2) {
+                rankClass = 'silver';
+                rankEmoji = '🥈';
+            } else if (rank === 3) {
+                rankClass = 'bronze';
+                rankEmoji = '🥉';
+            }
+            
+            let mainScore, subScore;
+            if (this.currentSortBy === 'performance') {
+                mainScore = `${score.performance}`;
+                subScore = `${score.timeDisplay} / ${score.moves}手`;
+            } else if (this.currentSortBy === 'time') {
+                mainScore = score.timeDisplay;
+                subScore = `${score.moves}手`;
+            } else {
+                mainScore = `${score.moves}手`;
+                subScore = score.timeDisplay;
+            }
+            
+            return `
+                <div class="ranking-item ${rankClass}">
+                    <div class="ranking-rank">${rankEmoji}</div>
+                    <div class="ranking-info">
+                        <div class="ranking-name">${this.escapeHtml(score.name)}</div>
+                        <div class="ranking-details">${score.dateDisplay}</div>
+                    </div>
+                    <div class="ranking-score">${mainScore}</div>
+                    <div class="ranking-sub-score">${subScore}</div>
+                </div>
+            `;
+        }).join('');
+        
+        const paginationHtml = totalPages > 1 ? `
+            <div class="ranking-pagination">
+                <button class="pagination-btn" ${this.rankingPage === 0 ? 'disabled' : ''} onclick="game.prevRankingPage()">◀ 前</button>
+                <span class="pagination-info">${this.rankingPage + 1} / ${totalPages}</span>
+                <button class="pagination-btn" ${this.rankingPage >= totalPages - 1 ? 'disabled' : ''} onclick="game.nextRankingPage()">次 ▶</button>
+            </div>
+        ` : '';
+        
+        listContainer.innerHTML = `
+            <div class="ranking-grid">${rankingsHtml}</div>
+            ${paginationHtml}
+        `;
+    }
+    
+    prevRankingPage() {
+        if (this.rankingPage > 0) {
+            this.rankingPage--;
+            this.renderRankingPage();
+        }
+    }
+    
+    nextRankingPage() {
+        const totalPages = Math.ceil(this.totalRankings.length / this.rankingsPerPage);
+        if (this.rankingPage < totalPages - 1) {
+            this.rankingPage++;
+            this.renderRankingPage();
         }
     }
     
@@ -1648,7 +1730,10 @@ class FreeCellGame {
     }
 }
 
+// グローバル変数としてゲームインスタンスを保持
+let game;
+
 // ゲーム開始
 document.addEventListener('DOMContentLoaded', () => {
-    new FreeCellGame();
+    game = new FreeCellGame();
 });
