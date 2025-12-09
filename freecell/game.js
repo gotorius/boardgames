@@ -33,7 +33,8 @@ class FreeCellGame {
         
         // 背景テーマ
         this.backgrounds = [
-            { name: 'デフォルト', gradient: 'linear-gradient(135deg, #1a3d28 0%, #0d2818 100%)' },
+            { name: 'グリーン', gradient: 'linear-gradient(135deg, #1a3d28 0%, #0d2818 100%)' },
+            { name: 'グリーン', gradient: 'linear-gradient(135deg, #155020ff 0%, #155020 100%)' },
             { name: 'ブルー', gradient: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)' },
             { name: 'パープル', gradient: 'linear-gradient(135deg, #4a148c 0%, #6a1b9a 100%)' },
             { name: 'レッド', gradient: 'linear-gradient(135deg, #b71c1c 0%, #c62828 100%)' },
@@ -1420,6 +1421,10 @@ class FreeCellGame {
             return;
         }
         
+        // 対戦モードを取得
+        const battleModeInput = document.querySelector('input[name="battle-mode"]:checked');
+        const battleMode = battleModeInput ? battleModeInput.value : 'performance';
+        
         // 名前を保存
         localStorage.setItem('battleName', playerName);
         
@@ -1430,11 +1435,13 @@ class FreeCellGame {
         // プレイヤーIDを生成
         this.playerId = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         this.playerName = playerName;
+        this.selectedBattleMode = battleMode;
         
         try {
-            // 待機中のルームを探す
+            // 待機中のルームを探す（同じ対戦モードのみ）
             const waitingRooms = await db.collection('battleRooms')
                 .where('status', '==', 'waiting')
+                .where('battleMode', '==', battleMode)
                 .limit(1)
                 .get();
             
@@ -1460,6 +1467,7 @@ class FreeCellGame {
         const roomRef = await db.collection('battleRooms').add({
             status: 'waiting',
             seed: seed,
+            battleMode: this.selectedBattleMode,
             player1: {
                 id: this.playerId,
                 name: this.playerName,
@@ -1549,6 +1557,7 @@ class FreeCellGame {
         // 対戦モード設定
         this.battleMode = true;
         this.battleStartTime = Date.now();
+        this.currentBattleMode = roomData.battleMode || 'performance';
         
         // 自分がどのプレイヤーか判定
         if (roomData.player1.id === this.playerId) {
@@ -1633,21 +1642,55 @@ class FreeCellGame {
             
             const roomData = roomDoc.data();
             const playerKey = roomData.player1.id === this.playerId ? 'player1' : 'player2';
+            const opponentKey = playerKey === 'player1' ? 'player2' : 'player1';
             
             const update = {};
             update[`${playerKey}.time`] = this.timer;
             update[`${playerKey}.moves`] = this.moves;
             update[`${playerKey}.finished`] = true;
+            
+            // 相手が既に完了している場合、勝者を判定
+            if (roomData[opponentKey].finished) {
+                const myScore = this.calculateBattleScore(this.moves, this.timer, roomData.battleMode);
+                const opponentScore = this.calculateBattleScore(
+                    roomData[opponentKey].moves, 
+                    roomData[opponentKey].time, 
+                    roomData.battleMode
+                );
+                
+                if (myScore < opponentScore) {
+                    update['winnerId'] = this.playerId;
+                } else {
+                    update['winnerId'] = roomData[opponentKey].id;
+                }
+            } else {
+                // 先にクリアした場合は暫定勝者
+                update['winnerId'] = this.playerId;
+            }
+            
             update['status'] = 'finished';
-            update['winnerId'] = this.playerId;
             
             await db.collection('battleRooms').doc(this.battleRoomId).update(update);
             
             // 更新後のデータで結果表示
             const updatedDoc = await db.collection('battleRooms').doc(this.battleRoomId).get();
-            this.endBattle(true, updatedDoc.data());
+            const finalData = updatedDoc.data();
+            const isWinner = finalData.winnerId === this.playerId;
+            this.endBattle(isWinner, finalData);
         } catch (error) {
             console.error('勝利処理エラー:', error);
+        }
+    }
+    
+    // 対戦スコアを計算
+    calculateBattleScore(moves, time, mode) {
+        if (mode === 'time') {
+            return time;
+        } else if (mode === 'moves') {
+            return moves;
+        } else {
+            // performance: 手数 × 0.6 + タイム × 0.4
+            return moves * 0.6 + time * 0.4;
         }
     }
     
@@ -1686,6 +1729,15 @@ class FreeCellGame {
             resultTitle.textContent = '😢 敗北...';
             resultTitle.className = 'lose';
         }
+        
+        // 対戦モード表示
+        const battleMode = roomData.battleMode || 'performance';
+        const modeNames = {
+            'performance': 'パフォーマンス',
+            'time': 'タイム',
+            'moves': '手数'
+        };
+        document.getElementById('battle-mode-display').textContent = `【${modeNames[battleMode]}勝負】`;
         
         // 勝者情報
         document.getElementById('winner-name').textContent = winner.name;

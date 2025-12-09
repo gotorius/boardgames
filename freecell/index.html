@@ -25,7 +25,7 @@
                 <button id="new-game-btn" class="btn btn-primary">新しいゲーム</button>
                 <button id="undo-btn" class="btn btn-secondary">元に戻す</button>
                 <button id="hint-btn" class="btn btn-secondary">ヒント</button>
-                <button id="bg-change-btn" class="btn btn-secondary">🎨 背景</button>
+                <button id="bg-change-btn" class="btn btn-secondary">背景</button>
                 <button id="ranking-btn" class="btn btn-secondary">ランキング</button>
                 <button id="battle-btn" class="btn btn-danger">オンライン対戦</button>
             </div>
@@ -118,6 +118,23 @@
                         <label for="battle-name">対戦名:</label>
                         <input type="text" id="battle-name" placeholder="名前を入力" maxlength="20">
                     </div>
+                    <div class="battle-mode-selection">
+                        <label>勝負方法:</label>
+                        <div class="mode-options">
+                            <label class="mode-option">
+                                <input type="radio" name="battle-mode" value="performance" checked>
+                                <span>パフォーマンス</span>
+                            </label>
+                            <label class="mode-option">
+                                <input type="radio" name="battle-mode" value="time">
+                                <span>タイム</span>
+                            </label>
+                            <label class="mode-option">
+                                <input type="radio" name="battle-mode" value="moves">
+                                <span>手数</span>
+                            </label>
+                        </div>
+                    </div>
                     <button id="start-matching-btn" class="btn btn-danger btn-large">対戦相手を探す</button>
                 </div>
                 <div id="matching-screen" class="battle-screen hidden">
@@ -156,6 +173,7 @@
         <div id="battle-result-modal" class="modal hidden">
             <div class="modal-content result-content">
                 <h2 id="result-title">🎉 勝利！</h2>
+                <p id="battle-mode-display" class="battle-mode-info"></p>
                 <div class="result-details">
                     <div class="result-row">
                         <div class="result-player winner">
