@@ -39,6 +39,12 @@
                     <div class="cell free-cell" data-cell="2"></div>
                     <div class="cell free-cell" data-cell="3"></div>
                 </div>
+                
+                <!-- 自動完成ボタン（条件を満たした時のみ表示） -->
+                <div id="auto-complete-container" class="auto-complete-container hidden">
+                    <button id="auto-complete-btn" class="btn btn-auto-complete">自動完成</button>
+                </div>
+                
                 <div class="home-cells">
                     <div class="cell home-cell" data-suit="hearts">♥</div>
                     <div class="cell home-cell" data-suit="diamonds">♦</div>
@@ -57,11 +63,6 @@
                 <div class="column" data-column="5"></div>
                 <div class="column" data-column="6"></div>
                 <div class="column" data-column="7"></div>
-            </div>
-            
-            <!-- 自動完成ボタン（条件を満たした時のみ表示） -->
-            <div id="auto-complete-container" class="auto-complete-container hidden">
-                <button id="auto-complete-btn" class="btn btn-auto-complete">✨ 自動完成</button>
             </div>
         </main>
 
