@@ -26,9 +26,24 @@ class FreeCellGame {
         this.moves = 0;
         this.timer = 0;
         this.timerInterval = null;
+        this.timerStarted = false;
         this.history = [];
         this.isAutoCompleting = false;
         this.currentSeed = null;
+        
+        // 背景テーマ
+        this.backgrounds = [
+            { name: 'デフォルト', gradient: 'linear-gradient(135deg, #1a3d28 0%, #0d2818 100%)' },
+            { name: 'ブルー', gradient: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)' },
+            { name: 'パープル', gradient: 'linear-gradient(135deg, #4a148c 0%, #6a1b9a 100%)' },
+            { name: 'レッド', gradient: 'linear-gradient(135deg, #b71c1c 0%, #c62828 100%)' },
+            { name: 'ダーク', gradient: 'linear-gradient(135deg, #212121 0%, #424242 100%)' },
+            { name: 'オレンジ', gradient: 'linear-gradient(135deg, #e65100 0%, #f57c00 100%)' }
+        ];
+        this.currentBgIndex = parseInt(localStorage.getItem('freecell-bg-index')) || 0;
+        
+        // 背景を適用
+        this.applyBackground();
         
         // 対戦モード状態
         this.battleMode = false;
@@ -62,6 +77,7 @@ class FreeCellGame {
         document.getElementById('undo-btn').addEventListener('click', () => this.undo());
         document.getElementById('hint-btn').addEventListener('click', () => this.showHint());
         document.getElementById('auto-complete-btn').addEventListener('click', () => this.autoComplete());
+        document.getElementById('bg-change-btn').addEventListener('click', () => this.changeBackground());
         document.getElementById('play-again-btn').addEventListener('click', () => {
             this.winModal.classList.add('hidden');
             this.newGame();
@@ -316,10 +332,11 @@ class FreeCellGame {
             autoContainer.classList.add('hidden');
         }
         
-        // タイマーリセット
+        // タイマーリセット（一手目まで開始しない）
         if (this.timerInterval) clearInterval(this.timerInterval);
         this.timer = 0;
-        this.timerInterval = setInterval(() => this.updateTimer(), 1000);
+        this.timerStarted = false;
+        this.timerDisplay.textContent = '00:00';
         
         // デッキ作成・シャッフル・配布（シード値使用）
         const deck = this.shuffle(this.createDeck(), this.currentSeed);
@@ -340,6 +357,27 @@ class FreeCellGame {
         const minutes = Math.floor(this.timer / 60).toString().padStart(2, '0');
         const seconds = (this.timer % 60).toString().padStart(2, '0');
         this.timerDisplay.textContent = `${minutes}:${seconds}`;
+    }
+    
+    // タイマー開始（一手目で開始）
+    startTimer() {
+        if (!this.timerStarted && !this.battleMode) {
+            this.timerStarted = true;
+            this.timerInterval = setInterval(() => this.updateTimer(), 1000);
+        }
+    }
+    
+    // 背景変更
+    changeBackground() {
+        this.currentBgIndex = (this.currentBgIndex + 1) % this.backgrounds.length;
+        localStorage.setItem('freecell-bg-index', this.currentBgIndex);
+        this.applyBackground();
+    }
+    
+    // 背景適用
+    applyBackground() {
+        const bg = this.backgrounds[this.currentBgIndex];
+        document.body.style.background = bg.gradient;
     }
     
     // カードのHTML生成
@@ -747,6 +785,7 @@ class FreeCellGame {
             
             this.freeCells[index] = this.selectedCard;
             this.moves++;
+            this.startTimer();
             
             this.clearSelection();
             this.render();
@@ -771,6 +810,7 @@ class FreeCellGame {
             
             this.homeCells[suit].push(this.selectedCard);
             this.moves++;
+            this.startTimer();
             
             this.clearSelection();
             this.render();
@@ -801,6 +841,7 @@ class FreeCellGame {
             
             this.columns[columnIndex].push(...cardsToMove);
             this.moves++;
+            this.startTimer();
             
             this.clearSelection();
             this.render();
