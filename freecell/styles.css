@@ -165,6 +165,51 @@ body {
     gap: 10px;
 }
 
+/* 自動完成ボタンコンテナ */
+.auto-complete-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    animation: slideUp 0.5s ease-out;
+}
+
+.auto-complete-container.hidden {
+    display: none;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.btn-auto-complete {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    transition: all 0.3s ease;
+}
+
+.btn-auto-complete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.6);
+}
+
+.btn-auto-complete:active {
+    transform: translateY(0);
+}
+
 .column {
     flex: 1;
     min-height: 400px;
@@ -517,8 +562,16 @@ body {
     font-size: 0.95rem;
     font-weight: bold;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible;
+}
+
+/* 名前の長さに応じて文字サイズを調整 */
+.ranking-name.name-long {
+    font-size: 0.8rem;
+}
+
+.ranking-name.name-very-long {
+    font-size: 0.7rem;
 }
 
 /* 1〜3位の名前を大きく */
@@ -526,6 +579,19 @@ body {
 .ranking-item.silver .ranking-name,
 .ranking-item.bronze .ranking-name {
     font-size: 1.05rem;
+}
+
+/* 1〜3位でも長い名前は小さく */
+.ranking-item.gold .ranking-name.name-long,
+.ranking-item.silver .ranking-name.name-long,
+.ranking-item.bronze .ranking-name.name-long {
+    font-size: 0.9rem;
+}
+
+.ranking-item.gold .ranking-name.name-very-long,
+.ranking-item.silver .ranking-name.name-very-long,
+.ranking-item.bronze .ranking-name.name-very-long {
+    font-size: 0.75rem;
 }
 
 .ranking-details {

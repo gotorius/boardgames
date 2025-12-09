@@ -310,6 +310,12 @@ class FreeCellGame {
         this.isAutoCompleting = false;
         this.currentSeed = seed !== null ? seed : this.generateSeed();
         
+        // 自動完成ボタンを非表示
+        const autoContainer = document.getElementById('auto-complete-container');
+        if (autoContainer) {
+            autoContainer.classList.add('hidden');
+        }
+        
         // タイマーリセット
         if (this.timerInterval) clearInterval(this.timerInterval);
         this.timer = 0;
@@ -996,7 +1002,7 @@ class FreeCellGame {
     
     // 自動完成チェック
     checkAutoComplete() {
-        // 各列が昇順（上から下にランクが減少）に並んでいるかチェック
+        // 各列が降順（上から下にランクが減少）に並んでいるかチェック
         let canAutoComplete = true;
         
         for (const column of this.columns) {
@@ -1009,38 +1015,13 @@ class FreeCellGame {
             if (!canAutoComplete) break;
         }
         
-        // フリーセルのカードと列のカードの関係をチェック
-        // フリーセルのカードより小さいランクのカードが列にある場合は自動完成不可
-        if (canAutoComplete) {
-            for (const cell of this.freeCells) {
-                if (cell !== null) {
-                    for (const column of this.columns) {
-                        for (const card of column) {
-                            if (card.rank < cell.rank) {
-                                canAutoComplete = false;
-                                break;
-                            }
-                        }
-                        if (!canAutoComplete) break;
-                    }
-                    // 他のフリーセルのカードもチェック
-                    if (canAutoComplete) {
-                        for (const otherCell of this.freeCells) {
-                            if (otherCell !== null && otherCell !== cell) {
-                                if (otherCell.rank < cell.rank) {
-                                    canAutoComplete = false;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                if (!canAutoComplete) break;
-            }
+        // 自動完成ボタンの表示/非表示を制御
+        const autoContainer = document.getElementById('auto-complete-container');
+        if (canAutoComplete && !this.isAutoCompleting) {
+            autoContainer.classList.remove('hidden');
+        } else {
+            autoContainer.classList.add('hidden');
         }
-        
-        const autoBtn = document.getElementById('auto-complete-btn');
-        autoBtn.disabled = !canAutoComplete || this.isAutoCompleting;
     }
     
     // 自動完成
@@ -1051,8 +1032,9 @@ class FreeCellGame {
         // 自動完成開始時にタイマーを停止
         clearInterval(this.timerInterval);
         
-        const autoBtn = document.getElementById('auto-complete-btn');
-        autoBtn.disabled = true;
+        // ボタンを非表示
+        const autoContainer = document.getElementById('auto-complete-container');
+        autoContainer.classList.add('hidden');
         
         let moved = true;
         while (moved) {
@@ -1276,11 +1258,20 @@ class FreeCellGame {
                 subScore = score.timeDisplay;
             }
             
+            // 名前の長さに応じてクラスを追加
+            const nameLength = score.name.length;
+            let nameSizeClass = '';
+            if (nameLength > 15) {
+                nameSizeClass = 'name-very-long';
+            } else if (nameLength > 10) {
+                nameSizeClass = 'name-long';
+            }
+            
             return `
                 <div class="ranking-item ${rankClass}">
                     <div class="ranking-rank">${rankEmoji}</div>
                     <div class="ranking-info">
-                        <div class="ranking-name">${this.escapeHtml(score.name)}</div>
+                        <div class="ranking-name ${nameSizeClass}">${this.escapeHtml(score.name)}</div>
                         <div class="ranking-details">${score.dateDisplay}</div>
                     </div>
                     <div class="ranking-score">${mainScore}</div>

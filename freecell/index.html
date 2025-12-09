@@ -25,7 +25,6 @@
                 <button id="new-game-btn" class="btn btn-primary">新しいゲーム</button>
                 <button id="undo-btn" class="btn btn-secondary">元に戻す</button>
                 <button id="hint-btn" class="btn btn-secondary">ヒント</button>
-                <button id="auto-complete-btn" class="btn btn-success">自動完成</button>
                 <button id="ranking-btn" class="btn btn-secondary">ランキング</button>
                 <button id="battle-btn" class="btn btn-danger">オンライン対戦</button>
             </div>
@@ -58,6 +57,11 @@
                 <div class="column" data-column="5"></div>
                 <div class="column" data-column="6"></div>
                 <div class="column" data-column="7"></div>
+            </div>
+            
+            <!-- 自動完成ボタン（条件を満たした時のみ表示） -->
+            <div id="auto-complete-container" class="auto-complete-container hidden">
+                <button id="auto-complete-btn" class="btn btn-auto-complete">✨ 自動完成</button>
             </div>
         </main>
 
