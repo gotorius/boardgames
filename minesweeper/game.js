@@ -139,6 +139,9 @@ function setupEventListeners() {
         });
     });
     
+    // 盤面表示切り替えボタン
+    document.getElementById('toggle-board-btn').addEventListener('click', toggleBoardVisibility);
+    
     // 右クリックメニュー無効化
     boardElement.addEventListener('contextmenu', e => e.preventDefault());
 }
@@ -522,6 +525,12 @@ function showResultModal(win) {
     const resultTime = document.getElementById('result-time');
     const resultRank = document.getElementById('result-rank');
     const nameInputSection = document.getElementById('name-input-section');
+    const resultStats = document.getElementById('result-stats');
+    const resultStatMessage = document.getElementById('result-stat-message');
+    const toggleBtn = document.getElementById('toggle-board-btn');
+    
+    // ボタンをリセット（前回の状態をクリア）
+    toggleBtn.classList.remove('hidden');
     
     if (win) {
         resultTitle.textContent = '🎉 ゲームクリア！';
@@ -530,6 +539,9 @@ function showResultModal(win) {
         const seconds = gameState.elapsedTime % 60;
         resultTime.textContent = `クリアタイム: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         
+        // 統計情報を非表示
+        resultStats.classList.add('hidden');
+        
         // ランキング登録セクション表示
         nameInputSection.classList.remove('hidden');
         resultRank.classList.add('hidden');
@@ -537,11 +549,43 @@ function showResultModal(win) {
         resultTitle.textContent = '💥 ゲームオーバー';
         resultTitle.className = 'lose';
         resultTime.textContent = '';
+        
+        // ゲームオーバー時の統計情報を表示
+        resultStats.classList.remove('hidden');
+        const flagged = gameState.flagged.flat().filter(f => f).length;
+        const revealed = gameState.revealed.flat().filter(r => r).length;
+        const totalCells = gameState.rows * gameState.cols;
+        
+        resultStatMessage.innerHTML = `
+            <strong>🎮 ゲーム統計</strong><br>
+            難易度: ${DIFFICULTY[gameState.difficulty].name}<br>
+            地雷: ${gameState.mines} 個 | フラグ: ${flagged} 個<br>
+            開封済み: ${revealed}/${totalCells} マス
+        `;
+        
         nameInputSection.classList.add('hidden');
         resultRank.classList.add('hidden');
     }
     
     resultModal.classList.remove('hidden');
+}
+
+// 盤面表示切り替え
+function toggleBoardVisibility() {
+    const boardWrapper = document.querySelector('.board-wrapper');
+    const onlineInfo = document.getElementById('online-info');
+    const toggleBtn = document.getElementById('toggle-board-btn');
+    const resultModal = document.getElementById('result-modal');
+    
+    // 盤面を表示してモーダルを隠す
+    boardWrapper.classList.remove('result-hidden');
+    if (onlineInfo) {
+        onlineInfo.classList.remove('result-hidden');
+    }
+    
+    // ボタン自体を隠す
+    toggleBtn.classList.add('hidden');
+    resultModal.classList.add('hidden');
 }
 
 // リトライ

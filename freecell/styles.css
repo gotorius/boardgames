@@ -98,6 +98,22 @@ body {
     color: white;
 }
 
+.btn-gold {
+    background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
+    color: #333;
+    font-weight: 600;
+}
+
+.btn-gold:hover {
+    background: linear-gradient(135deg, #ffed4e 0%, #ffb700 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+}
+
+.btn-gold:active {
+    transform: translateY(0);
+}
+
 .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;

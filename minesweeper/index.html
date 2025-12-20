@@ -14,7 +14,7 @@
         <header class="game-header">
             <h1>💣 マインスイーパー</h1>
             <div class="game-controls">
-                <a href="../index.html" class="home-link">🏠 ホーム</a>
+                <a href="../index.html" class="btn btn-secondary">ホーム</a>
                 <button id="new-game-btn" class="btn btn-primary">新しいゲーム</button>
                 <div class="mode-dropdown">
                     <button id="mode-btn" class="btn btn-secondary">難易度選択 ▼</button>
@@ -29,7 +29,7 @@
                     </div>
                 </div>
                 <button id="online-btn" class="btn btn-danger">オンライン対戦</button>
-                <button id="ranking-btn" class="btn btn-secondary">🏆 ランキング</button>
+                <button id="ranking-btn" class="btn btn-gold">🏆 ランキング</button>
             </div>
         </header>
 
@@ -121,10 +121,16 @@
                 <p id="result-time">クリアタイム: 00:00</p>
                 <p id="result-rank" class="hidden">ランキング: -位</p>
             </div>
+            <div id="result-stats" class="result-stats hidden">
+                <p id="result-stat-message">ゲームオーバー</p>
+            </div>
             <div id="name-input-section" class="name-input-section hidden">
                 <label for="ranking-name">ランキング登録名</label>
                 <input type="text" id="ranking-name" maxlength="10" placeholder="名前を入力">
                 <button id="register-ranking-btn" class="btn btn-success">登録</button>
+            </div>
+            <div class="result-board-toggle">
+                <button id="toggle-board-btn" class="btn btn-secondary">🔍 盤面を見る</button>
             </div>
             <div class="modal-buttons">
                 <button id="retry-btn" class="btn btn-primary">もう一度</button>
