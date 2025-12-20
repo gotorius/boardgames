@@ -31,6 +31,8 @@ body {
     border-radius: 12px;
     margin-bottom: 20px;
     backdrop-filter: blur(10px);
+    position: relative;
+    z-index: 100;
 }
 
 .game-header h1 {

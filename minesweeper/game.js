@@ -45,7 +45,6 @@ const gameStatus = document.getElementById('game-status');
 const statusText = document.getElementById('status-text');
 
 // モーダル
-const modeModal = document.getElementById('mode-modal');
 const onlineLobbyModal = document.getElementById('online-lobby-modal');
 const resultModal = document.getElementById('result-modal');
 const rankingModal = document.getElementById('ranking-modal');
@@ -144,9 +143,9 @@ function setupEventListeners() {
     boardElement.addEventListener('contextmenu', e => e.preventDefault());
 }
 
-// モード選択モーダル表示
+// モード選択モーダル表示（ドロップダウンで代替）
 function showModeModal() {
-    modeModal.classList.remove('hidden');
+    // モーダルは削除されたので、代わりにリセットのみ行う
     resetGame();
 }
 
@@ -659,7 +658,6 @@ let onlineDifficulty = 'normal';
 // オンラインロビー表示
 function showOnlineLobby(difficulty) {
     onlineDifficulty = difficulty;
-    modeModal.classList.add('hidden');
     onlineLobbyModal.classList.remove('hidden');
     
     // ロビー画面表示
@@ -918,7 +916,8 @@ async function cancelMatching() {
     gameState.isOnlineGame = false;
     
     onlineLobbyModal.classList.add('hidden');
-    showModeModal();
+    // ソロゲームに戻る
+    startSoloGame(gameState.difficulty);
 }
 
 // ============================================
