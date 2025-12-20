@@ -581,10 +581,10 @@ async function loadRanking(difficulty) {
     rankingList.innerHTML = '<div class="loading">読み込み中...</div>';
     
     try {
+        // インデックスなしで動作するよう、orderByを削除してクライアント側でソート
         const snapshot = await db.collection('minesweeper_rankings')
             .where('difficulty', '==', difficulty)
-            .orderBy('time', 'asc')
-            .limit(20)
+            .limit(100)  // より多く取得
             .get();
         
         if (snapshot.empty) {
@@ -592,11 +592,24 @@ async function loadRanking(difficulty) {
             return;
         }
         
+        // クライアント側でソート
+        const rankings = [];
+        snapshot.forEach(doc => {
+            rankings.push({
+                name: doc.data().name,
+                time: doc.data().time
+            });
+        });
+        
+        // timeでソート（昇順）
+        rankings.sort((a, b) => a.time - b.time);
+        
+        // 上位20件を表示
         rankingList.innerHTML = '';
         let rank = 1;
         
-        snapshot.forEach(doc => {
-            const data = doc.data();
+        for (let i = 0; i < Math.min(rankings.length, 20); i++) {
+            const data = rankings[i];
             const item = document.createElement('div');
             item.className = 'ranking-item' + (rank <= 3 ? ' top-3' : '');
             
@@ -612,15 +625,23 @@ async function loadRanking(difficulty) {
             
             rankingList.appendChild(item);
             rank++;
-        });
+        }
     } catch (error) {
         console.error('ランキング読み込みエラー:', error);
+        console.error('エラーコード:', error.code);
+        console.error('エラーメッセージ:', error.message);
         rankingList.innerHTML = '<div class="no-data">読み込みに失敗しました</div>';
     }
 }
 
 // ランキング登録
 async function registerRanking() {
+    // クリア時のみ登録可能
+    if (!gameState.win) {
+        alert('ゲームをクリアしてからランキングに登録できます');
+        return;
+    }
+    
     const nameInput = document.getElementById('ranking-name');
     const name = nameInput.value.trim();
     
@@ -630,12 +651,14 @@ async function registerRanking() {
     }
     
     try {
-        await db.collection('minesweeper_rankings').add({
+        const docRef = await db.collection('minesweeper_rankings').add({
             name: name,
             time: gameState.elapsedTime,
             difficulty: gameState.difficulty,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
+        
+        console.log('ランキング登録成功:', docRef.id);
         
         document.getElementById('name-input-section').classList.add('hidden');
         document.getElementById('result-rank').classList.remove('hidden');
@@ -643,9 +666,16 @@ async function registerRanking() {
         
         // ローカルストレージに名前を保存
         localStorage.setItem('minesweeper_playerName', name);
+        
+        // ランキング再読み込み
+        setTimeout(() => {
+            loadRanking(gameState.difficulty);
+        }, 1000);
     } catch (error) {
         console.error('ランキング登録エラー:', error);
-        alert('登録に失敗しました');
+        console.error('エラーコード:', error.code);
+        console.error('エラーメッセージ:', error.message);
+        alert('登録に失敗しました: ' + error.message);
     }
 }
 

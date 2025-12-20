@@ -178,6 +178,26 @@ body {
     color: #4a90d9;
 }
 
+.dropdown-item.disabled {
+    color: rgba(255, 255, 255, 0.3);
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.dropdown-item.disabled:hover {
+    background: none;
+}
+
+.dropdown-coming-soon {
+    padding: 8px 16px;
+    color: #ffd700;
+    font-size: 0.85rem;
+    text-align: center;
+    font-style: italic;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 5px;
+}
+
 /* ゲーム情報パネル */
 .game-info-panel {
     display: flex;

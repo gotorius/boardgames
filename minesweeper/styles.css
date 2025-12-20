@@ -15,6 +15,11 @@ body {
     user-select: none;
 }
 
+/* 共通 */
+.hidden {
+    display: none !important;
+}
+
 /* ゲームコンテナ */
 .game-container {
     max-width: 1200px;
