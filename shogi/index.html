@@ -20,6 +20,28 @@
                 <button id="new-game-btn" class="btn btn-primary">新しい対局</button>
                 <button id="undo-btn" class="btn btn-secondary" disabled>待った</button>
                 <button id="hint-btn" class="btn btn-secondary">ヒント</button>
+                <div class="mode-dropdown">
+                    <button id="mode-btn" class="btn btn-secondary">モード選択 ▼</button>
+                    <div class="mode-dropdown-content" id="mode-dropdown-content">
+                        <div class="dropdown-section">
+                            <div class="dropdown-title">🤖 CPU対戦</div>
+                            <button class="dropdown-item" data-mode="cpu" data-difficulty="ume">🌸 梅（初心者）</button>
+                            <button class="dropdown-item" data-mode="cpu" data-difficulty="take">🎋 竹（中級者）</button>
+                            <button class="dropdown-item" data-mode="cpu" data-difficulty="matsu">🌲 松（上級者）</button>
+                        </div>
+                        <div class="dropdown-section">
+                            <div class="dropdown-title">📝 詰将棋</div>
+                            <button class="dropdown-item" data-mode="tsume" data-level="1">① 一手詰</button>
+                            <button class="dropdown-item" data-mode="tsume" data-level="3">③ 三手詰</button>
+                            <button class="dropdown-item" data-mode="tsume" data-level="5">⑤ 五手詰</button>
+                        </div>
+                        <div class="dropdown-section">
+                            <div class="dropdown-title">👥 対人戦</div>
+                            <button class="dropdown-item" data-mode="pvp">🎮 ローカル対戦</button>
+                        </div>
+                    </div>
+                </div>
+                <button id="online-btn" class="btn btn-danger">オンライン対戦</button>
             </div>
         </header>
 
@@ -87,78 +109,6 @@
                 <div class="captured-list" id="my-captured-list"></div>
             </div>
         </main>
-
-        <!-- モード選択モーダル -->
-        <div id="mode-modal" class="modal">
-            <div class="modal-content">
-                <h2>対局モード選択</h2>
-                <div class="mode-options">
-                    <div class="mode-section">
-                        <h3>CPU対戦</h3>
-                        <div class="difficulty-options">
-                            <button class="mode-btn shogi-btn" onclick="initGame('cpu', 'ume')">
-                                <span class="mode-icon">🌸</span>
-                                <span class="mode-name">梅</span>
-                                <span class="mode-desc">初心者向け</span>
-                            </button>
-                            <button class="mode-btn shogi-btn" onclick="initGame('cpu', 'take')">
-                                <span class="mode-icon">🎋</span>
-                                <span class="mode-name">竹</span>
-                                <span class="mode-desc">中級者向け</span>
-                            </button>
-                            <button class="mode-btn shogi-btn" onclick="initGame('cpu', 'matsu')">
-                                <span class="mode-icon">🌲</span>
-                                <span class="mode-name">松</span>
-                                <span class="mode-desc">上級者向け</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="mode-section">
-                        <h3>詰将棋</h3>
-                        <div class="tsume-options">
-                            <button class="mode-btn shogi-btn" onclick="initGame('tsume', 1)">
-                                <span class="mode-icon">①</span>
-                                <span class="mode-name">一手詰</span>
-                                <span class="mode-desc">入門編</span>
-                            </button>
-                            <button class="mode-btn shogi-btn" onclick="initGame('tsume', 3)">
-                                <span class="mode-icon">③</span>
-                                <span class="mode-name">三手詰</span>
-                                <span class="mode-desc">初級編</span>
-                            </button>
-                            <button class="mode-btn shogi-btn" onclick="initGame('tsume', 5)">
-                                <span class="mode-icon">⑤</span>
-                                <span class="mode-name">五手詰</span>
-                                <span class="mode-desc">中級編</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="mode-section">
-                        <h3>2人対戦</h3>
-                        <div class="pvp-options">
-                            <button class="mode-btn shogi-btn wide" onclick="initGame('pvp', null)">
-                                <span class="mode-icon">👥</span>
-                                <span class="mode-name">ローカル対戦</span>
-                                <span class="mode-desc">同じ端末で2人対戦</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="mode-section">
-                        <h3>オンライン対戦</h3>
-                        <div class="pvp-options">
-                            <button class="mode-btn shogi-btn wide" onclick="showOnlineLobby()">
-                                <span class="mode-icon">🌐</span>
-                                <span class="mode-name">オンライン対戦</span>
-                                <span class="mode-desc">インターネット経由で対戦</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-buttons">
-                    <a href="../index.html" class="btn btn-secondary">ホームに戻る</a>
-                </div>
-            </div>
-        </div>
 
         <!-- オンライン対戦ロビーモーダル -->
         <div id="online-lobby-modal" class="modal hidden">

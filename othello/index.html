@@ -15,6 +15,21 @@
                 <button id="new-game-btn" class="btn btn-primary">新しいゲーム</button>
                 <button id="undo-btn" class="btn btn-secondary" disabled>元に戻す</button>
                 <button id="hint-btn" class="btn btn-secondary">ヒント</button>
+                <div class="mode-dropdown">
+                    <button id="mode-btn" class="btn btn-secondary">モード選択 ▼</button>
+                    <div class="mode-dropdown-content" id="mode-dropdown-content">
+                        <div class="dropdown-section">
+                            <div class="dropdown-title">🤖 CPU対戦</div>
+                            <button class="dropdown-item" data-mode="cpu" data-difficulty="easy">🌱 かんたん</button>
+                            <button class="dropdown-item" data-mode="cpu" data-difficulty="normal">⚔️ ふつう</button>
+                            <button class="dropdown-item" data-mode="cpu" data-difficulty="hard">🔥 むずかしい</button>
+                        </div>
+                        <div class="dropdown-section">
+                            <div class="dropdown-title">👥 対人戦</div>
+                            <button class="dropdown-item" data-mode="pvp">🎮 ローカル対戦</button>
+                        </div>
+                    </div>
+                </div>
                 <button id="online-btn" class="btn btn-danger">オンライン対戦</button>
             </div>
         </header>
@@ -52,53 +67,6 @@
                 </div>
             </div>
         </main>
-
-        <!-- モード選択モーダル -->
-        <div id="mode-modal" class="modal">
-            <div class="modal-content">
-                <h2>🎮 ゲームモード選択</h2>
-                <div class="mode-options">
-                    <div class="mode-section">
-                        <h3>CPU対戦</h3>
-                        <div class="difficulty-options">
-                            <button class="mode-btn" data-mode="cpu" data-difficulty="easy">
-                                <span class="mode-icon">🌱</span>
-                                <span class="mode-name">かんたん</span>
-                                <span class="mode-desc">初心者向け</span>
-                            </button>
-                            <button class="mode-btn" data-mode="cpu" data-difficulty="normal">
-                                <span class="mode-icon">⚔️</span>
-                                <span class="mode-name">ふつう</span>
-                                <span class="mode-desc">バランス重視</span>
-                            </button>
-                            <button class="mode-btn" data-mode="cpu" data-difficulty="hard">
-                                <span class="mode-icon">🔥</span>
-                                <span class="mode-name">むずかしい</span>
-                                <span class="mode-desc">上級者向け</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="mode-section">
-                        <h3>2人対戦</h3>
-                        <div class="pvp-options">
-                            <button class="mode-btn wide" data-mode="pvp">
-                                <span class="mode-icon">👥</span>
-                                <span class="mode-name">ローカル<br>対戦</span>
-                                <span class="mode-desc">同じ端末で2人対戦</span>
-                            </button>
-                            <button class="mode-btn wide" data-mode="online">
-                                <span class="mode-icon">🌐</span>
-                                <span class="mode-name">オンライン　対戦</span>
-                                <span class="mode-desc">世界中のプレイヤーと対戦</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-buttons">
-                    <a href="../index.html" class="btn btn-secondary">ホームに戻る</a>
-                </div>
-            </div>
-        </div>
 
         <!-- オンライン対戦ロビーモーダル -->
         <div id="online-lobby-modal" class="modal hidden">

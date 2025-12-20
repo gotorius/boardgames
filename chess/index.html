@@ -16,6 +16,22 @@
             <div class="game-controls">
                 <a href="../index.html" class="home-link">🏠 ホーム</a>
                 <button id="new-game-btn" class="btn btn-primary">新しいゲーム</button>
+                <div class="mode-dropdown">
+                    <button id="mode-btn" class="btn btn-secondary">モード選択 ▼</button>
+                    <div class="mode-dropdown-content" id="mode-dropdown-content">
+                        <div class="dropdown-section">
+                            <div class="dropdown-title">🤖 CPU対戦</div>
+                            <button class="dropdown-item" data-mode="cpu" data-difficulty="easy">😊 よわい</button>
+                            <button class="dropdown-item" data-mode="cpu" data-difficulty="normal">🙂 ふつう</button>
+                            <button class="dropdown-item" data-mode="cpu" data-difficulty="hard">😤 つよい</button>
+                        </div>
+                        <div class="dropdown-section">
+                            <div class="dropdown-title">👥 対人戦</div>
+                            <button class="dropdown-item" data-mode="local">🎮 ローカル対戦</button>
+                        </div>
+                    </div>
+                </div>
+                <button id="online-btn" class="btn btn-danger">オンライン対戦</button>
             </div>
         </header>
 
@@ -64,56 +80,6 @@
                 <div class="board-labels files-bottom">
                     <span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- モード選択モーダル -->
-    <div id="mode-modal" class="modal">
-        <div class="modal-content">
-            <h2>ゲームモード選択</h2>
-            <div class="mode-options">
-                <!-- CPU対戦 -->
-                <div class="mode-section">
-                    <h3>🤖 CPU対戦</h3>
-                    <div class="difficulty-options">
-                        <button class="mode-btn" data-mode="cpu" data-difficulty="easy">
-                            <span class="mode-icon">😊</span>
-                            <span class="mode-name">よわい</span>
-                            <span class="mode-desc">初心者向け</span>
-                        </button>
-                        <button class="mode-btn" data-mode="cpu" data-difficulty="normal">
-                            <span class="mode-icon">🙂</span>
-                            <span class="mode-name">ふつう</span>
-                            <span class="mode-desc">標準レベル</span>
-                        </button>
-                        <button class="mode-btn" data-mode="cpu" data-difficulty="hard">
-                            <span class="mode-icon">😤</span>
-                            <span class="mode-name">つよい</span>
-                            <span class="mode-desc">上級者向け</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 対人戦 -->
-                <div class="mode-section">
-                    <h3>👥 対人戦</h3>
-                    <div class="pvp-options">
-                        <button class="mode-btn wide" data-mode="local">
-                            <span class="mode-icon">🎮</span>
-                            <span class="mode-name">ローカル対戦</span>
-                            <span class="mode-desc">1台の端末で2人対戦</span>
-                        </button>
-                        <button class="mode-btn wide" data-mode="online">
-                            <span class="mode-icon">🌐</span>
-                            <span class="mode-name">オンライン対戦</span>
-                            <span class="mode-desc">ネットで対戦相手を探す</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-buttons">
-                <a href="../index.html" class="btn btn-secondary">ホームに戻る</a>
             </div>
         </div>
     </div>

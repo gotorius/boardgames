@@ -53,27 +53,61 @@ const rankingModal = document.getElementById('ranking-modal');
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
-    showModeModal();
+    // デフォルトで普通難易度で開始
+    startSoloGame('normal');
 });
 
 // イベントリスナー設定
 function setupEventListeners() {
-    // モード選択ボタン
-    document.querySelectorAll('.mode-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+    // モード選択ドロップダウン
+    const modeBtn = document.getElementById('mode-btn');
+    const modeDropdown = document.getElementById('mode-dropdown-content');
+    
+    modeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        modeDropdown.classList.toggle('show');
+    });
+    
+    // ドロップダウンの外側をクリックしたら閉じる
+    document.addEventListener('click', () => {
+        modeDropdown.classList.remove('show');
+    });
+    
+    // ドロップダウンアイテムのクリック
+    document.querySelectorAll('.dropdown-item').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
             const mode = btn.dataset.mode;
             const difficulty = btn.dataset.difficulty;
             
+            modeDropdown.classList.remove('show');
+            
+            if (gameState.isOnlineGame && gameState.unsubscribe) {
+                leaveOnlineGame();
+            }
+            
             if (mode === 'solo') {
                 startSoloGame(difficulty);
-            } else if (mode === 'online') {
-                showOnlineLobby(difficulty);
             }
         });
     });
     
+    // オンライン対戦ボタン
+    document.getElementById('online-btn').addEventListener('click', () => {
+        showOnlineLobby(gameState.difficulty);
+    });
+    
     // 新しいゲームボタン
-    document.getElementById('new-game-btn').addEventListener('click', showModeModal);
+    document.getElementById('new-game-btn').addEventListener('click', () => {
+        if (gameState.isOnlineGame) {
+            if (confirm('現在のゲームを終了しますか？')) {
+                leaveOnlineGame();
+                startSoloGame(gameState.difficulty);
+            }
+        } else {
+            startSoloGame(gameState.difficulty);
+        }
+    });
     
     // ランキングボタン
     document.getElementById('ranking-btn').addEventListener('click', showRanking);
@@ -82,7 +116,6 @@ function setupEventListeners() {
     document.getElementById('start-matching-btn').addEventListener('click', startMatching);
     document.getElementById('cancel-lobby-btn').addEventListener('click', () => {
         onlineLobbyModal.classList.add('hidden');
-        showModeModal();
     });
     document.getElementById('cancel-matching-btn').addEventListener('click', cancelMatching);
     
@@ -90,7 +123,6 @@ function setupEventListeners() {
     document.getElementById('retry-btn').addEventListener('click', retryGame);
     document.getElementById('new-game-result-btn').addEventListener('click', () => {
         resultModal.classList.add('hidden');
-        showModeModal();
     });
     document.getElementById('register-ranking-btn').addEventListener('click', registerRanking);
     
@@ -120,7 +152,6 @@ function showModeModal() {
 
 // ソロゲーム開始
 function startSoloGame(difficulty) {
-    modeModal.classList.add('hidden');
     gameState.isOnlineGame = false;
     gameState.difficulty = difficulty;
     initGame(difficulty);

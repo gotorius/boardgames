@@ -126,7 +126,6 @@ function initGame(mode, option) {
     }
     
     updateDisplay();
-    hideModal('mode-modal');
 }
 
 // 詰将棋の問題をロード
@@ -1414,7 +1413,8 @@ function clearHints() {
 
 // 新しい対局
 function newGame() {
-    showModal('mode-modal');
+    // 現在のモードで再対局
+    initGame(gameState.gameMode || 'cpu', gameState.difficulty || 'take');
 }
 
 // 結果表示
@@ -1474,6 +1474,47 @@ document.addEventListener('DOMContentLoaded', () => {
     renderBoard();
     renderCapturedPieces();
     
+    // モード選択ドロップダウン
+    const modeBtn = document.getElementById('mode-btn');
+    const modeDropdown = document.getElementById('mode-dropdown-content');
+    
+    modeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        modeDropdown.classList.toggle('show');
+    });
+    
+    // ドロップダウンの外側をクリックしたら閉じる
+    document.addEventListener('click', () => {
+        modeDropdown.classList.remove('show');
+    });
+    
+    // ドロップダウンアイテムのクリック
+    document.querySelectorAll('.dropdown-item').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const mode = btn.dataset.mode;
+            const difficulty = btn.dataset.difficulty;
+            const level = btn.dataset.level;
+            
+            modeDropdown.classList.remove('show');
+            
+            if (gameState.isOnlineGame) {
+                leaveOnlineGame();
+            }
+            
+            if (mode === 'cpu') {
+                initGame('cpu', difficulty);
+            } else if (mode === 'tsume') {
+                initGame('tsume', parseInt(level));
+            } else if (mode === 'pvp') {
+                initGame('pvp', null);
+            }
+        });
+    });
+    
+    // オンライン対戦ボタン
+    document.getElementById('online-btn').addEventListener('click', showOnlineLobby);
+    
     // ヘッダーボタンのイベントリスナー
     document.getElementById('new-game-btn').addEventListener('click', newGame);
     document.getElementById('undo-btn').addEventListener('click', undoMove);
@@ -1500,7 +1541,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameState.isOnlineGame) {
             leaveOnlineGame();
         }
-        showModal('mode-modal');
     });
     
     // 詰将棋クリアモーダルのイベントリスナー
@@ -1510,11 +1550,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('tsume-menu-btn').addEventListener('click', () => {
         hideModal('tsume-clear-modal');
-        showModal('mode-modal');
     });
     
-    // モード選択モーダルを表示
-    showModal('mode-modal');
+    // デフォルトでCPU（竹）モードで開始
+    initGame('cpu', 'take');
 });
 
 // グローバルに公開
@@ -1534,7 +1573,6 @@ window.closeLobby = closeLobby;
 
 // オンラインロビーを表示
 function showOnlineLobby() {
-    hideModal('mode-modal');
     showModal('online-lobby-modal');
     document.getElementById('lobby-screen').classList.remove('hidden');
     document.getElementById('matching-screen').classList.add('hidden');
@@ -1550,7 +1588,6 @@ function closeLobby() {
         cancelMatching();
     }
     hideModal('online-lobby-modal');
-    showModal('mode-modal');
 }
 
 // マッチング開始

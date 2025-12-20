@@ -37,7 +37,6 @@ class OthelloGame {
         
         // DOM要素
         this.boardElement = document.getElementById('board');
-        this.modeModal = document.getElementById('mode-modal');
         this.resultModal = document.getElementById('result-modal');
         this.passModal = document.getElementById('pass-modal');
         this.onlineLobbyModal = document.getElementById('online-lobby-modal');
@@ -45,7 +44,8 @@ class OthelloGame {
         
         // 初期化
         this.initEventListeners();
-        this.showModeModal();
+        // デフォルトでCPU（普通）モードで開始
+        this.startGame('cpu', 'normal');
     }
     
     // 2次元配列を1次元配列に変換（Firestore保存用）
@@ -68,7 +68,7 @@ class OthelloGame {
             if (this.gameMode === 'online') {
                 this.leaveOnlineGame();
             }
-            this.showModeModal();
+            this.startGame(this.gameMode, this.difficulty);
         });
         
         // 元に戻すボタン
@@ -86,19 +86,34 @@ class OthelloGame {
             this.showOnlineLobby();
         });
         
-        // モード選択ボタン
-        document.querySelectorAll('.mode-btn').forEach(btn => {
+        // モード選択ドロップダウン
+        const modeBtn = document.getElementById('mode-btn');
+        const modeDropdown = document.getElementById('mode-dropdown-content');
+        
+        modeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            modeDropdown.classList.toggle('show');
+        });
+        
+        // ドロップダウンの外側をクリックしたら閉じる
+        document.addEventListener('click', () => {
+            modeDropdown.classList.remove('show');
+        });
+        
+        // ドロップダウンアイテムのクリック
+        document.querySelectorAll('.dropdown-item').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 const button = e.currentTarget;
                 const mode = button.dataset.mode;
                 const difficulty = button.dataset.difficulty;
                 
-                if (mode === 'online') {
-                    this.modeModal.classList.add('hidden');
-                    this.showOnlineLobby();
-                } else {
-                    this.startGame(mode, difficulty);
+                modeDropdown.classList.remove('show');
+                
+                if (this.gameMode === 'online') {
+                    this.leaveOnlineGame();
                 }
+                this.startGame(mode, difficulty);
             });
         });
         
@@ -111,7 +126,6 @@ class OthelloGame {
         // モード変更ボタン
         document.getElementById('change-mode-btn').addEventListener('click', () => {
             this.resultModal.classList.add('hidden');
-            this.showModeModal();
         });
         
         // パスOKボタン
@@ -145,7 +159,6 @@ class OthelloGame {
         
         document.getElementById('online-back-btn').addEventListener('click', () => {
             this.onlineResultModal.classList.add('hidden');
-            this.showModeModal();
         });
         
         // キーボードショートカット
@@ -161,14 +174,9 @@ class OthelloGame {
         });
     }
     
-    showModeModal() {
-        this.modeModal.classList.remove('hidden');
-    }
-    
     startGame(mode, difficulty = 'normal') {
         this.gameMode = mode;
         this.difficulty = difficulty;
-        this.modeModal.classList.add('hidden');
         this.resultModal.classList.add('hidden');
         
         // ボードを初期化

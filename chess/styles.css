@@ -14,7 +14,7 @@ body {
 }
 
 .game-container {
-    max-width: 900px;
+    max-width: 950px;
     margin: 0 auto;
     padding: 20px;
 }
@@ -22,36 +22,43 @@ body {
 /* ヘッダー */
 .game-header {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    gap: 15px;
     padding: 15px 20px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
     margin-bottom: 20px;
+    backdrop-filter: blur(10px);
 }
 
 .game-header h1 {
     font-size: 1.8rem;
     color: #ffd700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .game-controls {
     display: flex;
     gap: 10px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .home-link {
-    color: #aaa;
+    color: #fff;
     text-decoration: none;
-    padding: 8px 16px;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     transition: all 0.3s ease;
+    font-size: 0.95rem;
 }
 
 .home-link:hover {
     color: #fff;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .btn {
@@ -62,35 +69,96 @@ body {
     font-size: 1rem;
     font-weight: 600;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4a90d9 0%, #357abd 100%);
     color: white;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
 }
 
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.2);
+    background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
     color: white;
 }
 
-.btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
 .btn-danger {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
     color: white;
 }
 
 .btn-large {
     padding: 15px 40px;
     font-size: 1.1rem;
+}
+
+/* モード選択ドロップダウン */
+.mode-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.mode-dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 200px;
+    background: rgba(30, 30, 50, 0.98);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    margin-top: 8px;
+    padding: 8px 0;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mode-dropdown-content.show {
+    display: block;
+}
+
+.dropdown-section {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-section:last-child {
+    border-bottom: none;
+}
+
+.dropdown-title {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 600;
+}
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 0.95rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-item.active {
+    background: rgba(102, 126, 234, 0.3);
+    color: #667eea;
 }
 
 /* ゲーム情報パネル */
@@ -196,12 +264,12 @@ body {
 }
 
 .files-top, .files-bottom {
-    width: 400px;
+    width: 440px;
     padding: 5px 0;
 }
 
 .files-top span, .files-bottom span {
-    width: 50px;
+    width: 55px;
     text-align: center;
 }
 
@@ -214,12 +282,12 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    height: 400px;
+    height: 440px;
     padding: 0 10px;
 }
 
 .ranks-left span, .ranks-right span {
-    height: 50px;
+    height: 55px;
     display: flex;
     align-items: center;
 }
@@ -227,20 +295,21 @@ body {
 /* チェス盤 */
 .board {
     display: grid;
-    grid-template-columns: repeat(8, 50px);
-    grid-template-rows: repeat(8, 50px);
-    border: 4px solid #8b4513;
+    grid-template-columns: repeat(8, 55px);
+    grid-template-rows: repeat(8, 55px);
+    border: 6px solid #5d4037;
     border-radius: 4px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.1);
+    background: #8b7355;
 }
 
 .cell {
-    width: 50px;
-    height: 50px;
+    width: 55px;
+    height: 55px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2.2rem;
+    font-size: 2.5rem;
     cursor: pointer;
     position: relative;
     transition: all 0.2s ease;
@@ -255,34 +324,52 @@ body {
 }
 
 .cell:hover {
-    filter: brightness(1.1);
+    filter: brightness(1.15);
 }
 
 .cell.selected {
-    background: #7fff00 !important;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+    background: #7cfc00 !important;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.4);
 }
 
 .cell.valid-move::after {
     content: '';
     position: absolute;
-    width: 16px;
-    height: 16px;
-    background: rgba(0, 128, 0, 0.5);
+    width: 18px;
+    height: 18px;
+    background: rgba(0, 180, 0, 0.6);
     border-radius: 50%;
+    box-shadow: 0 0 8px rgba(0, 180, 0, 0.5);
 }
 
 .cell.valid-capture {
-    background: rgba(255, 0, 0, 0.3) !important;
+    background: rgba(255, 80, 80, 0.5) !important;
+    box-shadow: inset 0 0 15px rgba(255, 0, 0, 0.3);
 }
 
 .cell.last-move {
-    background: rgba(255, 255, 0, 0.4) !important;
+    background: rgba(255, 255, 100, 0.5) !important;
 }
 
 .cell.check {
-    background: rgba(255, 0, 0, 0.5) !important;
+    background: rgba(255, 50, 50, 0.6) !important;
     animation: checkPulse 0.5s infinite alternate;
+}
+
+/* 駒のスタイル */
+.piece {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+    transition: transform 0.15s ease;
+}
+
+.piece.white {
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8), -1px -1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.piece.black {
+    color: #1a1a1a;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3);
 }
 
 @keyframes checkPulse {

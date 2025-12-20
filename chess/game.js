@@ -75,7 +75,11 @@ const resultModal = document.getElementById('result-modal');
 document.addEventListener('DOMContentLoaded', () => {
     initBoard();
     setupEventListeners();
-    showModeModal();
+    // デフォルトでCPU（普通）モードで開始
+    gameMode = 'cpu';
+    cpuDifficulty = 'normal';
+    startNewGame();
+    updateModeDisplay();
 });
 
 function initBoard() {
@@ -1044,28 +1048,50 @@ function hideOnlineLobby() {
 
 // イベントリスナー設定
 function setupEventListeners() {
-    // モード選択
-    document.querySelectorAll('.mode-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+    // モード選択ドロップダウン
+    const modeBtn = document.getElementById('mode-btn');
+    const modeDropdown = document.getElementById('mode-dropdown-content');
+    
+    modeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        modeDropdown.classList.toggle('show');
+    });
+    
+    // ドロップダウンの外側をクリックしたら閉じる
+    document.addEventListener('click', () => {
+        modeDropdown.classList.remove('show');
+    });
+    
+    // ドロップダウンアイテムのクリック
+    document.querySelectorAll('.dropdown-item').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
             const mode = btn.dataset.mode;
             const difficulty = btn.dataset.difficulty;
+            
+            modeDropdown.classList.remove('show');
+            
+            if (gameMode === 'online' && roomId) {
+                leaveRoom();
+            }
             
             if (mode === 'cpu') {
                 gameMode = 'cpu';
                 cpuDifficulty = difficulty;
-                hideModeModal();
                 startNewGame();
                 updateModeDisplay();
             } else if (mode === 'local') {
                 gameMode = 'local';
-                hideModeModal();
                 startNewGame();
                 updateModeDisplay();
-            } else if (mode === 'online') {
-                gameMode = 'online';
-                showOnlineLobby();
             }
         });
+    });
+    
+    // オンライン対戦ボタン
+    document.getElementById('online-btn').addEventListener('click', () => {
+        gameMode = 'online';
+        showOnlineLobby();
     });
     
     // 新しいゲームボタン
@@ -1074,10 +1100,10 @@ function setupEventListeners() {
             // オンラインゲーム中は確認
             if (confirm('現在のゲームを終了しますか？')) {
                 leaveRoom();
-                showModeModal();
+                startNewGame();
             }
         } else {
-            showModeModal();
+            startNewGame();
         }
     });
     
@@ -1099,14 +1125,12 @@ function setupEventListeners() {
         if (gameMode === 'online' && roomId) {
             leaveRoom();
         }
-        showModeModal();
     });
     
     // オンラインロビー
     document.getElementById('start-matching-btn').addEventListener('click', startMatching);
     document.getElementById('cancel-lobby-btn').addEventListener('click', () => {
         hideOnlineLobby();
-        showModeModal();
     });
     document.getElementById('cancel-matching-btn').addEventListener('click', cancelMatching);
 }

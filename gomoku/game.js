@@ -49,35 +49,72 @@ const resultModal = document.getElementById('result-modal');
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
-    showModeModal();
+    // デフォルトでCPU（普通）モードで開始
+    startCpuGame('normal');
 });
 
 // イベントリスナー設定
 function setupEventListeners() {
-    // モード選択ボタン
-    document.querySelectorAll('.mode-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+    // モード選択ドロップダウン
+    const modeBtn = document.getElementById('mode-btn');
+    const modeDropdown = document.getElementById('mode-dropdown-content');
+    
+    modeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        modeDropdown.classList.toggle('show');
+    });
+    
+    // ドロップダウンの外側をクリックしたら閉じる
+    document.addEventListener('click', () => {
+        modeDropdown.classList.remove('show');
+    });
+    
+    // ドロップダウンアイテムのクリック
+    document.querySelectorAll('.dropdown-item').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
             const mode = btn.dataset.mode;
             const difficulty = btn.dataset.difficulty;
+            
+            modeDropdown.classList.remove('show');
+            
+            if (gameState.isOnlineGame && gameState.unsubscribe) {
+                leaveGame();
+            }
             
             if (mode === 'cpu') {
                 startCpuGame(difficulty);
             } else if (mode === 'local') {
                 startLocalGame();
-            } else if (mode === 'online') {
-                showOnlineLobby();
             }
         });
     });
     
+    // オンライン対戦ボタン
+    document.getElementById('online-btn').addEventListener('click', showOnlineLobby);
+    
     // 新しいゲームボタン
-    document.getElementById('new-game-btn').addEventListener('click', showModeModal);
+    document.getElementById('new-game-btn').addEventListener('click', () => {
+        if (gameState.isOnlineGame) {
+            if (confirm('現在のゲームを終了しますか？')) {
+                leaveGame();
+                resetGame();
+                startCpuGame(gameState.difficulty);
+            }
+        } else {
+            resetGame();
+            if (gameState.gameMode === 'cpu') {
+                startCpuGame(gameState.difficulty);
+            } else {
+                startLocalGame();
+            }
+        }
+    });
     
     // オンラインロビー
     document.getElementById('start-matching-btn').addEventListener('click', startMatching);
     document.getElementById('cancel-lobby-btn').addEventListener('click', () => {
         onlineLobbyModal.classList.add('hidden');
-        showModeModal();
     });
     document.getElementById('cancel-matching-btn').addEventListener('click', cancelMatching);
     
@@ -85,19 +122,11 @@ function setupEventListeners() {
     document.getElementById('retry-btn').addEventListener('click', retryGame);
     document.getElementById('new-game-result-btn').addEventListener('click', () => {
         resultModal.classList.add('hidden');
-        showModeModal();
     });
-}
-
-// モード選択モーダル表示
-function showModeModal() {
-    resetGame();
-    modeModal.classList.remove('hidden');
 }
 
 // CPU対戦開始
 function startCpuGame(difficulty) {
-    modeModal.classList.add('hidden');
     gameState.gameMode = 'cpu';
     gameState.difficulty = difficulty;
     gameState.isOnlineGame = false;
@@ -113,7 +142,6 @@ function startCpuGame(difficulty) {
 
 // ローカル対戦開始
 function startLocalGame() {
-    modeModal.classList.add('hidden');
     gameState.gameMode = 'local';
     gameState.isOnlineGame = false;
     

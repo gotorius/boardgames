@@ -16,6 +16,19 @@
             <div class="game-controls">
                 <a href="../index.html" class="home-link">🏠 ホーム</a>
                 <button id="new-game-btn" class="btn btn-primary">新しいゲーム</button>
+                <div class="mode-dropdown">
+                    <button id="mode-btn" class="btn btn-secondary">難易度選択 ▼</button>
+                    <div class="mode-dropdown-content" id="mode-dropdown-content">
+                        <div class="dropdown-section">
+                            <div class="dropdown-title">🎮 ひとりで遊ぶ</div>
+                            <button class="dropdown-item" data-mode="solo" data-difficulty="easy">😊 かんたん (9×9)</button>
+                            <button class="dropdown-item" data-mode="solo" data-difficulty="normal">🙂 ふつう (16×16)</button>
+                            <button class="dropdown-item" data-mode="solo" data-difficulty="hard">😤 むずかしい (30×16)</button>
+                            <button class="dropdown-item" data-mode="solo" data-difficulty="extreme">👹 鬼畜 (30×20)</button>
+                        </div>
+                    </div>
+                </div>
+                <button id="online-btn" class="btn btn-danger">オンライン対戦</button>
                 <button id="ranking-btn" class="btn btn-secondary">🏆 ランキング</button>
             </div>
         </header>
@@ -72,67 +85,6 @@
             <span>左クリック: マスを開く</span>
             <span>右クリック: フラグを立てる/外す</span>
             <span>中クリック/両クリック: 周囲を一括オープン</span>
-        </div>
-    </div>
-
-    <!-- モード選択モーダル -->
-    <div id="mode-modal" class="modal">
-        <div class="modal-content">
-            <h2>ゲームモード選択</h2>
-            <div class="mode-options">
-                <!-- 難易度選択 -->
-                <div class="mode-section">
-                    <h3>🎮 ひとりで遊ぶ</h3>
-                    <div class="difficulty-options">
-                        <button class="mode-btn" data-mode="solo" data-difficulty="easy">
-                            <span class="mode-icon">😊</span>
-                            <span class="mode-name">かんたん</span>
-                            <span class="mode-desc">9×9 / 地雷10個</span>
-                        </button>
-                        <button class="mode-btn" data-mode="solo" data-difficulty="normal">
-                            <span class="mode-icon">🙂</span>
-                            <span class="mode-name">ふつう</span>
-                            <span class="mode-desc">16×16 / 地雷40個</span>
-                        </button>
-                        <button class="mode-btn" data-mode="solo" data-difficulty="hard">
-                            <span class="mode-icon">😤</span>
-                            <span class="mode-name">むずかしい</span>
-                            <span class="mode-desc">30×16 / 地雷99個</span>
-                        </button>
-                        <button class="mode-btn" data-mode="solo" data-difficulty="extreme">
-                            <span class="mode-icon">👹</span>
-                            <span class="mode-name">鬼畜</span>
-                            <span class="mode-desc">30×20 / 地雷150個</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- オンライン対戦 -->
-                <div class="mode-section">
-                    <h3>🌐 オンライン対戦</h3>
-                    <p class="online-description">同じ盤面で対戦！先にクリアした方が勝ち</p>
-                    <div class="difficulty-options">
-                        <button class="mode-btn" data-mode="online" data-difficulty="easy">
-                            <span class="mode-icon">😊🆚</span>
-                            <span class="mode-name">かんたん</span>
-                            <span class="mode-desc">9×9 / 地雷10個</span>
-                        </button>
-                        <button class="mode-btn" data-mode="online" data-difficulty="normal">
-                            <span class="mode-icon">🙂🆚</span>
-                            <span class="mode-name">ふつう</span>
-                            <span class="mode-desc">16×16 / 地雷40個</span>
-                        </button>
-                        <button class="mode-btn" data-mode="online" data-difficulty="hard">
-                            <span class="mode-icon">😤🆚</span>
-                            <span class="mode-name">むずかしい</span>
-                            <span class="mode-desc">30×16 / 地雷99個</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-buttons">
-                <a href="../index.html" class="btn btn-secondary">ホームに戻る</a>
-            </div>
         </div>
     </div>
 
