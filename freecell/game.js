@@ -102,12 +102,23 @@ class FreeCellGame {
             this.newGame();
         });
         
-        // ランキングタブ切り替え
+        // ランキングタブ切り替え（ソート順）
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
                 this.renderRankingList(e.target.dataset.tab);
+            });
+        });
+        
+        // ランキングタイプ切り替え（総合/デイリー）
+        document.querySelectorAll('.type-tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.type-tab-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                this.currentRankingType = e.target.dataset.type;
+                const activeTab = document.querySelector('.tab-btn.active');
+                this.renderRankingList(activeTab ? activeTab.dataset.tab : 'performance');
             });
         });
         
@@ -1169,13 +1180,16 @@ class FreeCellGame {
         saveBtn.disabled = true;
         
         try {
+            const now = new Date();
+            const dateString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
             const score = {
                 name: playerName,
                 time: this.timer,
                 timeDisplay: this.timerDisplay.textContent,
                 moves: this.moves,
                 date: firebase.firestore.FieldValue.serverTimestamp(),
-                dateDisplay: this.formatDate(new Date())
+                dateDisplay: this.formatDate(now),
+                dateString: dateString
             };
             
             // Firebaseに保存
@@ -1202,10 +1216,36 @@ class FreeCellGame {
         this.rankingModal.classList.remove('hidden');
         // 現在アクティブなタブで表示
         const activeTab = document.querySelector('.tab-btn.active');
+        const activeTypeTab = document.querySelector('.type-tab-btn.active');
         this.rankingPage = 0;
         this.rankingsPerPage = 10;
         this.totalRankings = [];
+        this.currentRankingType = activeTypeTab ? activeTypeTab.dataset.type : 'all';
         this.renderRankingList(activeTab ? activeTab.dataset.tab : 'performance');
+    }
+    
+    // 今日の日付を取得（YYYY-MM-DD形式）
+    getTodayDateString() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+    
+    // 日付文字列を取得（スコアデータから）
+    getDateStringFromScore(score) {
+        if (score.dateString) {
+            return score.dateString;
+        }
+        if (score.date && score.date.toDate) {
+            const d = score.date.toDate();
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        return null;
     }
     
     // パフォーマンススコアを計算（手数とタイムの複合評価）
@@ -1223,6 +1263,9 @@ class FreeCellGame {
         const listContainer = document.getElementById('ranking-list');
         listContainer.innerHTML = '<div class="ranking-empty">読み込み中...</div>';
         
+        const isDaily = this.currentRankingType === 'daily';
+        const todayString = this.getTodayDateString();
+        
         try {
             // Firebaseからランキング取得（全件取得してソート）
             const snapshot = await db.collection('rankings')
@@ -1230,7 +1273,10 @@ class FreeCellGame {
                 .get();
             
             if (snapshot.empty) {
-                listContainer.innerHTML = '<div class="ranking-empty">まだ記録がありません<br>ゲームをクリアして記録を残そう！</div>';
+                const emptyMessage = isDaily 
+                    ? 'まだ今日の記録がありません<br>ゲームをクリアして記録を残そう！'
+                    : 'まだ記録がありません<br>ゲームをクリアして記録を残そう！';
+                listContainer.innerHTML = `<div class="ranking-empty">${emptyMessage}</div>`;
                 return;
             }
             
@@ -1238,13 +1284,29 @@ class FreeCellGame {
             snapshot.forEach(doc => {
                 const data = doc.data();
                 const performance = this.calculatePerformance(data.moves, data.time);
-                this.totalRankings.push({
+                const scoreData = {
                     id: doc.id,
                     ...data,
                     performance: performance,
                     dateDisplay: data.dateDisplay || (data.date ? this.formatDate(data.date.toDate()) : '不明')
-                });
+                };
+                
+                // デイリーモードの場合は今日の記録のみフィルタ
+                if (isDaily) {
+                    const scoreDateString = this.getDateStringFromScore(data);
+                    if (scoreDateString === todayString) {
+                        this.totalRankings.push(scoreData);
+                    }
+                } else {
+                    this.totalRankings.push(scoreData);
+                }
             });
+            
+            // デイリーで記録がない場合
+            if (isDaily && this.totalRankings.length === 0) {
+                listContainer.innerHTML = '<div class="ranking-empty">まだ今日の記録がありません<br>ゲームをクリアして記録を残そう！</div>';
+                return;
+            }
             
             // ソート
             if (sortBy === 'performance') {
